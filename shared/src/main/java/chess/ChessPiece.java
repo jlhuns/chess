@@ -34,6 +34,7 @@ public class ChessPiece {
     private PieceMovesCalculator createMovesCalculator(PieceType type) {
         return switch (type) {
             case KING -> new KingMovesCalculator(this);
+            case QUEEN -> new QueenMovesCalculator(this);
             case BISHOP -> new BishopMovesCalculator(this);
             case KNIGHT ->  new KnightMovesCalculator(this);
             case ROOK -> new RookMovesCalculator(this);
