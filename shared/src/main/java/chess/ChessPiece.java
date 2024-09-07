@@ -12,12 +12,10 @@ import java.util.Objects;
 public class ChessPiece {
     ChessGame.TeamColor teamColor;
     ChessPiece.PieceType pieceType;
-    private final PieceMovesCalculator movesCalculator;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.teamColor = pieceColor;
         this.pieceType = type;
-        this.movesCalculator = createMovesCalculator(pieceType);
     }
 
     /**
@@ -31,18 +29,18 @@ public class ChessPiece {
         ROOK,
         PAWN;
     }
-    private PieceMovesCalculator createMovesCalculator(PieceType type) {
-        return switch (type) {
-            case KING -> new KingMovesCalculator(this);
-            case QUEEN -> new QueenMovesCalculator(this);
-            case BISHOP -> new BishopMovesCalculator(this);
-            case KNIGHT ->  new KnightMovesCalculator(this);
-            case ROOK -> new RookMovesCalculator(this);
-            case PAWN -> new PawnMoveCalculator(this);
-            // Add cases for other piece types
-            default -> throw new IllegalArgumentException("Unsupported piece type: " + type);
-        };
-    }
+//    private PieceMovesCalculator createMovesCalculator(PieceType type) {
+//        return switch (type) {
+//            case KING -> new KingMovesCalculator(this);
+//            case QUEEN -> new QueenMovesCalculator(this);
+//            case BISHOP -> new BishopMovesCalculator(this);
+//            case KNIGHT ->  new KnightMovesCalculator(this);
+//            case ROOK -> new RookMovesCalculator(this);
+//            case PAWN -> new PawnMoveCalculator(this);
+//            // Add cases for other piece types
+//            default -> throw new IllegalArgumentException("Unsupported piece type: " + type);
+//        };
+//    }
 
     /**
      * @return Which team this chess piece belongs to
@@ -66,6 +64,14 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        PieceMovesCalculator movesCalculator = switch (pieceType) {
+            case KING -> new KingMovesCalculator(this);
+            case QUEEN -> new QueenMovesCalculator(this);
+            case BISHOP -> new BishopMovesCalculator(this);
+            case KNIGHT -> new KnightMovesCalculator(this);
+            case ROOK -> new RookMovesCalculator(this);
+            case PAWN -> new PawnMoveCalculator(this);
+        };
         return movesCalculator.pieceMoves(board, myPosition);
     }
 

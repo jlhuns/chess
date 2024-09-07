@@ -85,4 +85,11 @@ public class ChessBoard {
     public int hashCode() {
         return Objects.hashCode(board);
     }
+
+    @Override
+    public String toString() {
+        return "ChessBoard{" +
+                "board=" + board +
+                '}';
+    }
 }
