@@ -15,6 +15,7 @@ public class KingMovesCalculator implements PieceMovesCalculator {
         List<ChessMove> moves = new ArrayList<>();
         int row = position.getRow();
         int column = position.getColumn();
+        ChessGame.TeamColor teamColor = piece.getTeamColor();
 
         // Define possible directions the King can move
         int[][] movementDirections = {
@@ -28,12 +29,16 @@ public class KingMovesCalculator implements PieceMovesCalculator {
                 {-1, 1}  // Move up-right
         };
         //check all positions
-        for(int[] direction : movementDirections) {
+        for (int[] direction : movementDirections) {
             int newRow = row + direction[0];
             int newColumn = column + direction[1];
-            ChessPosition newPosition = new ChessPosition(newRow, newColumn);
-            if(isValidPosition(newRow, newColumn) && board.getPiece(newPosition) != null) {
-                moves.add(new ChessMove(position, newPosition, ChessPiece.PieceType.KING));
+            if (isValidPosition(newRow, newColumn)) {
+                ChessPosition newPosition = new ChessPosition(newRow, newColumn);
+                ChessPiece pieceAtNewPosition = board.getPiece(newPosition);
+
+                if (pieceAtNewPosition == null || pieceAtNewPosition.getTeamColor() != teamColor) {
+                    moves.add(new ChessMove(position, newPosition, ChessPiece.PieceType.KING));
+                }
             }
         }
         return moves;
