@@ -43,10 +43,10 @@ public class BishopMovesCalculator implements PieceMovesCalculator{
 
                 if (pieceAtNewPosition == null) {
                     // Add move to an empty square
-                    moves.add(new ChessMove(position, newPosition, ChessPiece.PieceType.BISHOP));
+                    moves.add(new ChessMove(position, newPosition, null));
                 } else if (pieceAtNewPosition.getTeamColor() != teamColor) {
                     // Capture an opponent's piece and stop further movement in this direction
-                    moves.add(new ChessMove(position, newPosition, ChessPiece.PieceType.BISHOP));
+                    moves.add(new ChessMove(position, newPosition, null));
                     break;
                 } else {
                     // Stop if it's your own piece

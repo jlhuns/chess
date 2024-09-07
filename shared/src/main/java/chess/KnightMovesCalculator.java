@@ -39,9 +39,9 @@ public class KnightMovesCalculator implements PieceMovesCalculator{
                 ChessPiece pieceAtNewPosition = board.getPiece(newPosition);
 
                 if (pieceAtNewPosition == null) {
-                    moves.add(new ChessMove(position, newPosition, ChessPiece.PieceType.KNIGHT));
+                    moves.add(new ChessMove(position, newPosition, null));
                 } else if (pieceAtNewPosition.getTeamColor() != teamColor) {
-                    moves.add(new ChessMove(position, newPosition, ChessPiece.PieceType.KNIGHT));
+                    moves.add(new ChessMove(position, newPosition, null));
                 }
             }
         }

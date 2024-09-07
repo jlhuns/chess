@@ -3,6 +3,7 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 public class RookMovesCalculator implements PieceMovesCalculator{
     private final ChessPiece piece;
@@ -41,9 +42,9 @@ public class RookMovesCalculator implements PieceMovesCalculator{
                 ChessPiece pieceAtNewPosition = board.getPiece(newPosition);
 
                 if(pieceAtNewPosition == null){
-                    moves.add(new ChessMove(position, newPosition, ChessPiece.PieceType.ROOK));
+                    moves.add(new ChessMove(position, newPosition, null));
                 } else if (pieceAtNewPosition.getTeamColor() != teamColor) {
-                    moves.add(new ChessMove(position, newPosition, ChessPiece.PieceType.ROOK));
+                    moves.add(new ChessMove(position, newPosition, null));
                     break;
                 }else{
                     break;

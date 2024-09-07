@@ -29,18 +29,6 @@ public class ChessPiece {
         ROOK,
         PAWN;
     }
-//    private PieceMovesCalculator createMovesCalculator(PieceType type) {
-//        return switch (type) {
-//            case KING -> new KingMovesCalculator(this);
-//            case QUEEN -> new QueenMovesCalculator(this);
-//            case BISHOP -> new BishopMovesCalculator(this);
-//            case KNIGHT ->  new KnightMovesCalculator(this);
-//            case ROOK -> new RookMovesCalculator(this);
-//            case PAWN -> new PawnMoveCalculator(this);
-//            // Add cases for other piece types
-//            default -> throw new IllegalArgumentException("Unsupported piece type: " + type);
-//        };
-//    }
 
     /**
      * @return Which team this chess piece belongs to
