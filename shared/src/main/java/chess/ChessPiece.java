@@ -12,10 +12,12 @@ import java.util.Objects;
 public class ChessPiece {
     ChessGame.TeamColor teamColor;
     ChessPiece.PieceType pieceType;
+    private final PieceMovesCalculator movesCalculator;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.teamColor = pieceColor;
         this.pieceType = type;
+        this.movesCalculator = createMovesCalculator(pieceType);
     }
 
     /**
@@ -27,7 +29,14 @@ public class ChessPiece {
         BISHOP,
         KNIGHT,
         ROOK,
-        PAWN
+        PAWN;
+    }
+    private PieceMovesCalculator createMovesCalculator(PieceType type) {
+        return switch (type) {
+            case KING -> new KingMovesCalculator();
+            // Add cases for other piece types
+            default -> throw new IllegalArgumentException("Unsupported piece type: " + type);
+        };
     }
 
     /**
@@ -51,8 +60,8 @@ public class ChessPiece {
      *
      * @return Collection of valid moves
      */
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove>) {
-        throw new RuntimeException("Not implemented");
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        return movesCalculator.pieceMoves(board, myPosition);
     }
 
     @Override
