@@ -5,6 +5,11 @@ import java.util.Collection;
 import java.util.List;
 
 public class KingMovesCalculator implements PieceMovesCalculator {
+    private final ChessPiece piece;
+
+    public KingMovesCalculator(ChessPiece piece) {
+        this.piece = piece;
+    }
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
         List<ChessMove> moves = new ArrayList<>();
@@ -26,8 +31,8 @@ public class KingMovesCalculator implements PieceMovesCalculator {
         for(int[] direction : movementDirections) {
             int newRow = row + direction[0];
             int newColumn = column + direction[1];
-            if(isValidPosition(newRow, newColumn)){
-                ChessPosition newPosition = new ChessPosition(newRow, newColumn);
+            ChessPosition newPosition = new ChessPosition(newRow, newColumn);
+            if(isValidPosition(newRow, newColumn) && board.getPiece(newPosition) != null) {
                 moves.add(new ChessMove(position, newPosition, ChessPiece.PieceType.KING));
             }
         }
