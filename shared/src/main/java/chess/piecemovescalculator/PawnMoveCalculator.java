@@ -1,4 +1,6 @@
-package chess;
+package chess.piecemovescalculator;
+
+import chess.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,6 +8,10 @@ import java.util.List;
 
 public class PawnMoveCalculator implements PieceMovesCalculator {
     private final ChessPiece piece;
+    @Override
+    public int[][] getMoveDirection(){
+        return new int[][]{};
+    }
 
     public PawnMoveCalculator(ChessPiece piece) {
         this.piece = piece;
