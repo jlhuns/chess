@@ -37,6 +37,17 @@ public class ChessBoard {
     public ChessPiece getPiece(ChessPosition position) {return this.board.get(position);
     }
 
+    public ChessPosition getPieceLocation(ChessPiece.PieceType piece, ChessGame.TeamColor teamColor) {
+        for(Map.Entry<ChessPosition, ChessPiece> entry : this.board.entrySet()) {
+            ChessPosition position = entry.getKey();
+            ChessPiece pieceToCheck = entry.getValue();
+            if(pieceToCheck.pieceType.equals(piece) && pieceToCheck.getTeamColor() == teamColor) {
+                return position;
+            }
+        }
+        return null;
+    }
+
     /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
@@ -71,6 +82,15 @@ public class ChessBoard {
         for (int col = 1; col <= 8; col++) {
             addPiece(new ChessPosition(7, col), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
         }
+    }
+    public ChessBoard cloneBoard(ChessBoard board){
+        ChessBoard newBoard = new ChessBoard();
+        for(Map.Entry<ChessPosition, ChessPiece> entry : this.board.entrySet()){
+            ChessPosition position = entry.getKey();
+            ChessPiece piece = entry.getValue();
+            newBoard.addPiece(position, piece);
+        }
+        return newBoard;
     }
 
     @Override
