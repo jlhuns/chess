@@ -107,6 +107,25 @@ public class ChessBoard {
         return teamPieces;
     }
 
+    /**
+     * Moves a piece, ignoring all status checks and invalid moves
+     */
+    public void forceMove(ChessMove move){
+        // Get the piece that is making the move
+        ChessPiece movingPiece = getPiece(move.startPosition);
+
+        // Remove the piece from its current position
+        removePiece(move.startPosition);
+
+        // If there's a piece at the destination (capture), remove it
+        if (getPiece(move.endPosition) != null) {
+            removePiece(move.endPosition);
+        }
+
+        // Place the moving piece at the destination position
+        addPiece(move.endPosition, movingPiece);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
