@@ -86,6 +86,7 @@ public class ChessGame {
         }
         if(validMoves.contains(move)){
             board.forceMove(move);
+            setTeamTurn(teamColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
         }else{
             throw new InvalidMoveException();
         }
@@ -190,7 +191,20 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor) {
         //check if each move is valid, if there are no valid moves and not in check, its a stalemate
-        throw new RuntimeException("Not implemented");
+        if (isInCheck(teamColor)) {
+            return false;
+        }
+
+        Map<ChessPosition, ChessPiece> teamPieces = board.getTeamPiecesOnBoard(teamColor);
+        for (Map.Entry<ChessPosition, ChessPiece> entry : teamPieces.entrySet()) {
+            ChessPiece piece = entry.getValue();
+            ChessPosition position = entry.getKey();
+            Collection<ChessMove> pieceValidMoves = validMoves(position);
+            if(!pieceValidMoves.isEmpty()){
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
