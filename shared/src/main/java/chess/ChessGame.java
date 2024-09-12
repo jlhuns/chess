@@ -134,9 +134,6 @@ public class ChessGame {
      * @param teamColor which team to check for checkmate
      * @return True if the specified team is in checkmate
      */
-    //currently the problem is that pawns don't thraten a square unless the king is in that diagonal square. I will need to fix this by maybe
-    //using clones and doing possible scenerios. might be able to use isincheck to help out. i.e move king and if still in check then invalid move. test all
-    //of king moves that way. then try to block or take a piece if able using a similar approach. just need to find way to clone board.
     public boolean isInCheckmate(TeamColor teamColor) {
         cacheThreatenedPositions(teamColor);  // Cache threatened positions for the main board
         if (!isInCheck(teamColor)) {
