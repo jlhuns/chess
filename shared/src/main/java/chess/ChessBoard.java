@@ -122,6 +122,10 @@ public class ChessBoard {
             removePiece(move.endPosition);
         }
 
+        //if there is a promotion reflect that
+        if(move.pieceType != null){
+            movingPiece.pieceType = move.pieceType;
+        }
         // Place the moving piece at the destination position
         addPiece(move.endPosition, movingPiece);
     }

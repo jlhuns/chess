@@ -75,11 +75,15 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPiece piece = board.getPiece(move.startPosition);
-        ChessGame.TeamColor teamColor = piece.teamColor;
-        if(piece == null || this.teamColor != teamColor){
+        Collection<ChessMove> validMoves = validMoves(move.startPosition);
+        if(validMoves == null){
             throw new InvalidMoveException();
         }
-        Collection<ChessMove> validMoves = validMoves(move.startPosition);
+        ChessGame.TeamColor teamColor = piece.teamColor;
+
+        if(this.teamColor != teamColor){
+            throw new InvalidMoveException();
+        }
         if(validMoves.contains(move)){
             board.forceMove(move);
         }else{
