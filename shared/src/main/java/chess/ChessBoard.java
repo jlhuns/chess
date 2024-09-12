@@ -1,7 +1,5 @@
 package chess;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 
 /**
@@ -14,7 +12,7 @@ public class ChessBoard {
     private final Map<ChessPosition, ChessPiece> board;
 
     public ChessBoard() {
-        this.board = new HashMap<ChessPosition, ChessPiece>();
+        board = new HashMap<ChessPosition, ChessPiece>();
     }
 
     /**
@@ -24,7 +22,11 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        this.board.put(position, piece);
+        board.put(position, piece);
+    }
+
+    public void removePiece(ChessPosition position) {
+        board.remove(position);
     }
 
     /**
@@ -34,14 +36,14 @@ public class ChessBoard {
      * @return Either the piece at the position, or null if no piece is at that
      * position
      */
-    public ChessPiece getPiece(ChessPosition position) {return this.board.get(position);
+    public ChessPiece getPiece(ChessPosition position) {return board.get(position);
     }
 
     public ChessPosition getPieceLocation(ChessPiece.PieceType piece, ChessGame.TeamColor teamColor) {
-        for(Map.Entry<ChessPosition, ChessPiece> entry : this.board.entrySet()) {
+        for(Map.Entry<ChessPosition, ChessPiece> entry : board.entrySet()) {
             ChessPosition position = entry.getKey();
             ChessPiece pieceToCheck = entry.getValue();
-            if(pieceToCheck.pieceType.equals(piece) && pieceToCheck.getTeamColor() == teamColor) {
+            if(pieceToCheck.pieceType.equals(piece) && pieceToCheck.teamColor == teamColor) {
                 return position;
             }
         }
@@ -53,7 +55,7 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        this.board.clear();
+        board.clear();
 
         // White pieces
         addPiece(new ChessPosition(1, 1), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
@@ -83,14 +85,26 @@ public class ChessBoard {
             addPiece(new ChessPosition(7, col), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
         }
     }
-    public ChessBoard cloneBoard(ChessBoard board){
+    public ChessBoard cloneBoard(){
         ChessBoard newBoard = new ChessBoard();
-        for(Map.Entry<ChessPosition, ChessPiece> entry : this.board.entrySet()){
+        for(Map.Entry<ChessPosition, ChessPiece> entry : board.entrySet()){
             ChessPosition position = entry.getKey();
             ChessPiece piece = entry.getValue();
             newBoard.addPiece(position, piece);
         }
         return newBoard;
+    }
+
+    public Map<ChessPosition, ChessPiece> getTeamPiecesOnBoard(ChessGame.TeamColor teamColor){
+        Map<ChessPosition, ChessPiece> teamPieces = new HashMap<>();
+        for(Map.Entry<ChessPosition, ChessPiece> entry : board.entrySet()){
+            ChessPosition position = entry.getKey();
+            ChessPiece piece = entry.getValue();
+            if(piece.getTeamColor() == teamColor){
+                teamPieces.put(position, piece);
+            }
+        }
+        return teamPieces;
     }
 
     @Override
