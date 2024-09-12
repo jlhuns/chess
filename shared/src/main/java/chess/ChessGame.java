@@ -105,11 +105,30 @@ public class ChessGame {
         if(this.teamColor != teamColor){
             throw new InvalidMoveException();
         }
-        if(validMoves.contains(move)){
-            board.forceMove(move);
+        ChessMove matchingMove = null;
+        for (ChessMove validMove : validMoves) {
+            if (validMove.equals(move)) {
+                matchingMove = validMove;
+                break;
+            }
+        }
+
+        if (matchingMove != null) {
+            if (matchingMove.isCastleMove()) {
+                // Move the rook as part of castling
+                board.forceMove(new ChessMove(matchingMove.getRookStartPosition(), matchingMove.getRookEndPosition(), null));
+            }
+
+            // Perform the king's move
+            board.forceMove(matchingMove);
+
+            // Mark the piece as having moved
+            piece.setMoved(true);
+
+            // Invalidate cache and update the turn
             invalidateCache();
             setTeamTurn(teamColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
-        }else{
+        } else {
             throw new InvalidMoveException();
         }
 

@@ -14,10 +14,18 @@ import java.util.Objects;
 public class ChessPiece {
     ChessGame.TeamColor teamColor;
     ChessPiece.PieceType pieceType;
+    private boolean moved;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.teamColor = pieceColor;
         this.pieceType = type;
+        this.moved = false;
+    }
+    public boolean hasMoved() {
+        return moved;
+    }
+    public void setMoved(boolean moved) {
+        this.moved = moved;
     }
 
     /**

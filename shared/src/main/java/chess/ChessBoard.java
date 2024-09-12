@@ -95,6 +95,10 @@ public class ChessBoard {
         return newBoard;
     }
 
+    public boolean isEmpty(ChessPosition position) {
+        return getPiece(position) == null;
+    }
+
     public Map<ChessPosition, ChessPiece> getTeamPiecesOnBoard(ChessGame.TeamColor teamColor){
         Map<ChessPosition, ChessPiece> teamPieces = new HashMap<>();
         for(Map.Entry<ChessPosition, ChessPiece> entry : board.entrySet()){
