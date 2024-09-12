@@ -11,15 +11,36 @@ import java.util.*;
 public class ChessGame {
     private ChessBoard board;
     private TeamColor teamColor;
+    private boolean cacheValid;
+    private Set<ChessPosition> cachedThreatenedPositions;
     public ChessGame() {
         this.teamColor = TeamColor.WHITE;
         this.board = new ChessBoard();
         this.board.resetBoard();
+        this.cacheValid = false;
     }
 
-    /**
-     * @return Which team's turn it is
-     */
+    private void cacheThreatenedPositions(TeamColor teamColor) {
+        if (!cacheValid) {
+            cachedThreatenedPositions = getAllOpponentThreatenedPositions(teamColor, board);
+            cacheValid = true;  // Mark cache as valid
+        }
+    }
+    private Set<ChessPosition> getCachedThreatenedPositions() {
+        if (!cacheValid) {
+            throw new IllegalStateException("Threatened positions cache is not valid.");
+        }
+        return cachedThreatenedPositions;
+    }
+    // Invalidate cache after every move
+    private void invalidateCache() {
+        cacheValid = false;
+    }
+
+
+        /**
+         * @return Which team's turn it is
+         */
     public TeamColor getTeamTurn() {
         return this.teamColor;
     }
@@ -86,6 +107,7 @@ public class ChessGame {
         }
         if(validMoves.contains(move)){
             board.forceMove(move);
+            invalidateCache();
             setTeamTurn(teamColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
         }else{
             throw new InvalidMoveException();
@@ -100,12 +122,10 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
+        cacheThreatenedPositions(teamColor);  // Cache threatened positions for the main board
         ChessPosition kingLocation = board.getPieceLocation(ChessPiece.PieceType.KING, teamColor);
-        Set<ChessPosition> threatenedPositions = getAllOpponentThreatenedPositions(teamColor, board);
-        if(threatenedPositions.contains(kingLocation)){
-            return true;
-        }
-        return false;
+        Set<ChessPosition> threatenedPositions = getCachedThreatenedPositions();
+        return threatenedPositions.contains(kingLocation);
     }
 
     /**
@@ -118,15 +138,16 @@ public class ChessGame {
     //using clones and doing possible scenerios. might be able to use isincheck to help out. i.e move king and if still in check then invalid move. test all
     //of king moves that way. then try to block or take a piece if able using a similar approach. just need to find way to clone board.
     public boolean isInCheckmate(TeamColor teamColor) {
-        ChessPosition kingLocation = board.getPieceLocation(ChessPiece.PieceType.KING, teamColor);
-        ChessPiece kingPiece = board.getPiece(kingLocation);
-
+        cacheThreatenedPositions(teamColor);  // Cache threatened positions for the main board
         if (!isInCheck(teamColor)) {
             return false;
         }
 
+        ChessPosition kingLocation = board.getPieceLocation(ChessPiece.PieceType.KING, teamColor);
+        ChessPiece kingPiece = board.getPiece(kingLocation);
         Collection<ChessMove> kingMoves = kingPiece.pieceMoves(board, kingLocation);
-        //check all king moves
+
+        // Check all king moves
         for (ChessMove move : kingMoves) {
             ChessBoard simBoard = board.cloneBoard();
             simBoard.forceMove(move);  // Simulate the move on the cloned board
@@ -156,13 +177,10 @@ public class ChessGame {
         return true;
     }
 
-    private boolean isInCheckAfterMove(TeamColor teamColor, ChessBoard board) {
-        ChessPosition kingLocation = board.getPieceLocation(ChessPiece.PieceType.KING, teamColor);
-        Set<ChessPosition> threatenedPositions = getAllOpponentThreatenedPositions(teamColor, board);
-        if (threatenedPositions.contains(kingLocation)) {
-            return true;
-        }
-        return false;
+    private boolean isInCheckAfterMove(TeamColor teamColor, ChessBoard simBoard) {
+        ChessPosition kingLocation = simBoard.getPieceLocation(ChessPiece.PieceType.KING, teamColor);
+        Set<ChessPosition> threatenedPositions = getAllOpponentThreatenedPositions(teamColor, simBoard); // Recalculate for the simulated board
+        return threatenedPositions.contains(kingLocation);
     }
 
     private Set<ChessPosition> getAllOpponentThreatenedPositions(ChessGame.TeamColor teamcolor, ChessBoard board){
@@ -190,7 +208,7 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        //check if each move is valid, if there are no valid moves and not in check, its a stalemate
+        cacheThreatenedPositions(teamColor);  // Cache threatened positions for the main board
         if (isInCheck(teamColor)) {
             return false;
         }
@@ -200,7 +218,7 @@ public class ChessGame {
             ChessPiece piece = entry.getValue();
             ChessPosition position = entry.getKey();
             Collection<ChessMove> pieceValidMoves = validMoves(position);
-            if(!pieceValidMoves.isEmpty()){
+            if (!pieceValidMoves.isEmpty()) {
                 return false;
             }
         }
