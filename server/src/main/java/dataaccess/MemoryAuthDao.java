@@ -39,4 +39,8 @@ public class MemoryAuthDao implements AuthDAO {
             throw new DataAccessException("Auth data not found.");
         }
     }
+    @Override
+    public void clearAuthData(){
+        authDatabase.clear();
+    }
 }

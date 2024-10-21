@@ -72,4 +72,8 @@ public class MemoryGameDao implements GameDAO {
         };
         gameDatabase.put(updatedGame.gameID(), updatedGame);
     }
+    @Override
+    public void clearGameData(){
+        gameDatabase.clear();
+    }
 }

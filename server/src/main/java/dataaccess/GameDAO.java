@@ -18,5 +18,5 @@ public interface GameDAO {
 
     void setTeamColor(int gameID, ChessGame.TeamColor teamColor, String username) throws DataAccessException;
 
-
+    void clearGameData() throws DataAccessException;
 }

@@ -40,4 +40,8 @@ public class MemoryUserDAO implements UserDAO {
             throw new DataAccessException("User not found.");
         }
     }
+    @Override
+    public void clearUserData(){
+        userDatabase.clear();
+    }
 }
