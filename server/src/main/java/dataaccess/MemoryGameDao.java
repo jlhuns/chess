@@ -1,8 +1,11 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.GameData;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MemoryGameDao implements GameDAO {
@@ -37,5 +40,36 @@ public class MemoryGameDao implements GameDAO {
         if (gameDatabase.remove(gameID) == null) {
             throw new DataAccessException("Game not found.");
         }
+    }
+    @Override
+    public List<GameData> getAllGames() throws DataAccessException {
+        return new ArrayList<>(gameDatabase.values());
+    }
+
+    @Override
+    public void setTeamColor(int gameID, ChessGame.TeamColor teamColor, String username) throws DataAccessException {
+        // Retrieve the game data from the database
+        GameData game = gameDatabase.get(gameID);
+
+        if (game == null) {
+            throw new DataAccessException("Error: game not found.");  // Handle case where game does not exist
+        }
+
+        GameData updatedGame = switch (teamColor) {
+            case WHITE -> {
+                if (game.whiteUsername() != null) {
+                    throw new DataAccessException("Error: white team is already occupied."); // Handle case where white team is already taken
+                }
+                yield new GameData(game.gameID(), username, game.blackUsername(), game.game());
+            }
+            case BLACK -> {
+                if (game.blackUsername() != null) {
+                    throw new DataAccessException("Error: black team is already occupied."); // Handle case where black team is already taken
+                }
+                yield new GameData(game.gameID(), game.whiteUsername(), username, game.game());
+            }
+            default -> throw new DataAccessException("Error: invalid team color."); // Handle invalid team color
+        };
+        gameDatabase.put(updatedGame.gameID(), updatedGame);
     }
 }
