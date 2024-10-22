@@ -1,8 +1,8 @@
 package passoff.server;
 
-import dataAccess.BadRequestException;
-import dataAccess.DataAccessException;
-import dataAccess.UnauthorizedException;
+import dataaccess.BadRequestException;
+import dataaccess.DataAccessException;
+import dataaccess.UnauthorizedException;
 import model.GameData;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -49,7 +49,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void testListGames_ValidToken_ReturnsEmptyGames() throws Exception {
+    public void testListGamesValidTokenReturnsEmptyGames() throws Exception {
         GameService gameService = GameService.getInstance();
 
         List<GameData> games = gameService.listGames(existingAuth);
@@ -59,7 +59,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void testListGames_InvalidToken_ThrowsException() {
+    public void testListGamesInvalidTokenThrowsException() {
         GameService gameService = GameService.getInstance();
 
         assertThrows(UnauthorizedException.class, () -> {
@@ -68,7 +68,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void testCreateGame_ValidInputs_ReturnsGameId() throws Exception {
+    public void testCreateGameValidInputsReturnsGameId() throws Exception {
         GameService gameService = GameService.getInstance();
 
         int gameId = gameService.createGame(existingAuth, "gameName");
@@ -77,7 +77,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void testCreateGame_EmptyGameName_ThrowsException() {
+    public void testCreateGameEmptyGameNameThrowsException() {
         GameService gameService = GameService.getInstance();
 
         assertThrows(DataAccessException.class, () -> {
@@ -86,7 +86,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void testJoinGame_ValidInputs_Success() throws Exception {
+    public void testJoinGameValidInputsSuccess() throws Exception {
         GameService gameService = GameService.getInstance();
         int gameId = gameService.createGame(existingAuth, "gameName");
 
@@ -97,7 +97,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void testJoinGame_NonExistingGame_ThrowsException() {
+    public void testJoinGameNonExistingGameThrowsException() {
         GameService gameService = GameService.getInstance();
 
         assertThrows(BadRequestException.class, () -> {

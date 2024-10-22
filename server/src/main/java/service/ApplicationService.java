@@ -1,6 +1,6 @@
 package service;
 
-import dataAccess.*;
+import dataaccess.*;
 
 public class ApplicationService {
     private static ApplicationService instance;

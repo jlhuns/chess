@@ -1,6 +1,6 @@
 package service;
 
-import dataAccess.*;
+import dataaccess.*;
 import model.UserData;
 import model.AuthData;
 
@@ -26,9 +26,10 @@ public class UserService {
 
     // Register a new user and create an AuthData object
     public AuthData register(UserData user) throws DataAccessException, BadRequestException {
-        if (user == null || user.username() == null || user.username().trim().isEmpty() || user.password() == null || user.password().trim().isEmpty()) {
-            throw new BadRequestException("Username or password cannot be null or empty.");
-        }
+        if (user == null || user.username() == null || user.username().trim().isEmpty()) {
+            throw new BadRequestException("Username cannot be null or empty.");
+        } else if(user.password() == null || user.password().trim().isEmpty())
+            throw new BadRequestException("Password cannot be null or empty.");
 
         if (userDAO.getUser(user.username()) == null) {
             try {

@@ -3,7 +3,7 @@ package service;
 
 import chess.ChessBoard;
 import chess.ChessGame;
-import dataAccess.*;
+import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 

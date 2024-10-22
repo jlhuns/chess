@@ -1,8 +1,8 @@
 package server;
 
-import dataAccess.AlreadyTakenException;
-import dataAccess.BadRequestException;
-import dataAccess.UnauthorizedException;
+import dataaccess.AlreadyTakenException;
+import dataaccess.BadRequestException;
+import dataaccess.UnauthorizedException;
 import handler.game.CreateGameHandler;
 import handler.DBHandler;
 import handler.game.JoinGameHandler;

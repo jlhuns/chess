@@ -1,4 +1,4 @@
-package dataAccess;
+package dataaccess;
 
 /**
  * Indicates that the provided authToken was invalid

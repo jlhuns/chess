@@ -1,7 +1,7 @@
 package handler.game;
 import com.google.gson.Gson;
-import dataAccess.DataAccessException;
-import dataAccess.UnauthorizedException;
+import dataaccess.DataAccessException;
+import dataaccess.UnauthorizedException;
 import model.GameData;
 import service.GameService;
 import spark.Request;

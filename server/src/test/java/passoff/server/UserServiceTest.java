@@ -1,9 +1,9 @@
 package passoff.server;
 
-import dataAccess.AlreadyTakenException;
-import dataAccess.BadRequestException;
-import dataAccess.DataAccessException;
-import dataAccess.UnauthorizedException;
+import dataaccess.AlreadyTakenException;
+import dataaccess.BadRequestException;
+import dataaccess.DataAccessException;
+import dataaccess.UnauthorizedException;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class UserServiceTest {
 
     @Test
-    public void testRegister_NewUser_Success() throws Exception {
+    public void testRegisterNewUserSuccess() throws Exception {
         UserData newUser = new UserData("newuser", "password123", null);
         UserService userService = UserService.getInstance();
 
@@ -26,7 +26,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testRegister_ExistingUser_ThrowsException() throws Exception {
+    public void testRegisterExistingUserThrowsException() throws Exception {
         UserData existingUser = new UserData("existinguser", "password123", null);
         UserService userService = UserService.getInstance();
 
@@ -41,7 +41,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testLogin_ValidCredentials_Success() throws Exception {
+    public void testLoginValidCredentialsSuccess() throws Exception {
         UserData validUser = new UserData("validuser", "password123", null);
         UserService userService = UserService.getInstance();
         userService.register(validUser);
@@ -54,7 +54,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testLogin_NotRegistered_ThrowsException() throws BadRequestException, DataAccessException {
+    public void testLoginNotRegisteredThrowsException() throws BadRequestException, DataAccessException {
         UserData invalidUser = new UserData("invaliduser", "wrongpassword", null);
         UserService userService = UserService.getInstance();
 
@@ -66,7 +66,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testLogout_ValidToken_Success() throws Exception {
+    public void testLogoutValidTokenSuccess() throws Exception {
         UserData newUser = new UserData("newuser2", "password123", null);
         UserService userService = UserService.getInstance();
 
@@ -81,17 +81,17 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testLogout_InValidToken() throws Exception {
+    public void testLogoutInvalidToken() throws Exception {
         UserData newUser = new UserData("newuser22", "password123", null);
         UserService userService = UserService.getInstance();
 
         AuthData authData = userService.register(newUser);
 
         userService.login(newUser);
-        String InvalidToken = "gothca"; // Use the token returned from login/register
+        String invalidToken = "gothca"; // Use the token returned from login/register
 
         Exception exception = assertThrows(UnauthorizedException.class, () -> {
-            userService.logout(InvalidToken);
+            userService.logout(invalidToken);
         });
 
         assertEquals(null, exception.getMessage());

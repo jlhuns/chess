@@ -1,8 +1,7 @@
 package handler.user;
 import com.google.gson.Gson;
-import dataAccess.BadRequestException;
-import dataAccess.DataAccessException;
-import dataAccess.UnauthorizedException;
+import dataaccess.DataAccessException;
+import dataaccess.UnauthorizedException;
 import model.AuthData;
 import model.UserData;
 import service.UserService;
