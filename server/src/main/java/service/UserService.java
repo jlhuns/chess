@@ -28,8 +28,9 @@ public class UserService {
     public AuthData register(UserData user) throws DataAccessException, BadRequestException {
         if (user == null || user.username() == null || user.username().trim().isEmpty()) {
             throw new BadRequestException("Username cannot be null or empty.");
-        } else if(user.password() == null || user.password().trim().isEmpty())
+        } else if(user.password() == null || user.password().trim().isEmpty()) {
             throw new BadRequestException("Password cannot be null or empty.");
+        }
 
         if (userDAO.getUser(user.username()) == null) {
             try {

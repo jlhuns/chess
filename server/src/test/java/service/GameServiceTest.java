@@ -1,4 +1,4 @@
-package passoff.server;
+package service;
 
 import dataaccess.BadRequestException;
 import dataaccess.DataAccessException;
@@ -10,8 +10,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import passoff.model.TestAuthResult;
 import passoff.model.TestUser;
+import passoff.server.TestServerFacade;
 import server.Server;
-import service.GameService;
 
 import java.util.List;
 

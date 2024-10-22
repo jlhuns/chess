@@ -1,4 +1,4 @@
-package passoff.server;
+package service;
 
 import dataaccess.AlreadyTakenException;
 import dataaccess.BadRequestException;
@@ -7,7 +7,6 @@ import dataaccess.UnauthorizedException;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.Test;
-import service.UserService;
 
 import static org.junit.jupiter.api.Assertions.*;
 
