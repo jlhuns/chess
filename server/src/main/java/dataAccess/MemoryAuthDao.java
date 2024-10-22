@@ -1,4 +1,4 @@
-package dataaccess;
+package dataAccess;
 
 import model.AuthData;
 
@@ -43,9 +43,9 @@ public class MemoryAuthDao implements AuthDAO {
     }
 
     @Override
-    public void deleteAuth(AuthData authData) throws DataAccessException {
+    public void deleteAuth(AuthData authData) throws DataAccessException, UnauthorizedException {
         if (authDatabase.remove(authData.authToken()) == null) {
-            throw new DataAccessException("Auth data not found.");
+            throw new UnauthorizedException();
         }
     }
     @Override

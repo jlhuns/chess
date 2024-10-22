@@ -1,6 +1,6 @@
 package handler.game;
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
+import dataAccess.DataAccessException;
 import model.GameData;
 import service.GameService;
 import spark.Request;
@@ -19,7 +19,17 @@ public class ListGamesHandler implements Route {
     public Object handle(Request request, Response response) throws DataAccessException{
         String authToken = request.headers("authorization");
         List<GameData> games = gameService.listGames(authToken);
+        if (games.isEmpty()) {
+            return "{}";
+        }
+
         response.status(200);
         return new Gson().toJson(games);
+    }
+
+    public static record ListGamesRequest(String authToken) {
+    }
+
+    public static record ListGamesResponse(List<GameData> games) {
     }
 }

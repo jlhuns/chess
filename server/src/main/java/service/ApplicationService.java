@@ -1,11 +1,9 @@
 package service;
 
-import dataaccess.AuthDAO;
-import dataaccess.DataAccessException;
-import dataaccess.GameDAO;
-import dataaccess.UserDAO;
+import dataAccess.*;
 
 public class ApplicationService {
+    private static ApplicationService instance;
     private final AuthDAO authDAO;  // For authentication validation
     private final GameDAO gameDAO;
     private final UserDAO userDAO;
@@ -14,6 +12,16 @@ public class ApplicationService {
         this.authDAO = authDAO;
         this.gameDAO = gameDAO;
         this.userDAO = userDAO;
+    }
+
+    public static ApplicationService getInstance() {
+        if (instance == null) {
+            AuthDAO authDAO = MemoryAuthDao.getInstance();
+            GameDAO gameDAO = MemoryGameDao.getInstance();
+            UserDAO userDAO = MemoryUserDao.getInstance();
+            instance = new ApplicationService(authDAO, gameDAO, userDAO);
+        }
+        return instance;
     }
 
     public void clearDatabase() throws DataAccessException {

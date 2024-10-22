@@ -1,6 +1,6 @@
 package service;
 
-import dataaccess.*;
+import dataAccess.*;
 import model.UserData;
 import model.AuthData;
 
@@ -27,12 +27,21 @@ public class UserService {
     }
 
     // Register a new user and create an AuthData object
-    public AuthData register(UserData user) throws DataAccessException {
+    public AuthData register(UserData user) throws DataAccessException, BadRequestException {
+        // Check if the user data is valid
+        if (user == null || user.username() == null || user.username().trim().isEmpty() || user.password() == null || user.password().trim().isEmpty()) {
+            throw new BadRequestException("Username or password cannot be null or empty.");
+        }
+
         // Check if the user does not exist before inserting
         if (userDAO.getUser(user.username()) == null) {
-            userDAO.insertUser(user);
+            try {
+                userDAO.insertUser(user);
+            } catch (DataAccessException e) {
+                throw new BadRequestException("Failed to insert user: " + e.getMessage());
+            }
         } else {
-            throw new DataAccessException("User already exists.");
+            throw new AlreadyTakenException("User already exists.");
         }
 
         // Generate a session token
@@ -46,11 +55,11 @@ public class UserService {
     }
 
     // Login method to authenticate a user
-    public AuthData login(UserData user) throws DataAccessException {
+    public AuthData login(UserData user) throws UnauthorizedException, DataAccessException {
         UserData storedUser = userDAO.getUser(user.username());
 
         if (storedUser == null || !storedUser.password().equals(user.password())) {
-            throw new DataAccessException("Invalid username or password.");
+            throw new UnauthorizedException();
         }
 
         // Generate a session token
@@ -64,9 +73,8 @@ public class UserService {
     }
 
     // Logout method to invalidate a session
-    public void logout(String authToken) throws DataAccessException {
+    public void logout(String authToken) throws DataAccessException, UnauthorizedException {
         // Remove the session using AuthDAO
-        System.out.println(authToken);
         AuthData authData = authDAO.getAuthData(authToken);
         authDAO.deleteAuth(authData);
     }

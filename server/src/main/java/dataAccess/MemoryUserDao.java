@@ -1,4 +1,4 @@
-package dataaccess;
+package dataAccess;
 
 import model.UserData;
 
@@ -20,9 +20,6 @@ public class MemoryUserDao implements UserDAO {
 
     @Override
     public void insertUser(UserData user) throws DataAccessException {
-        if (userDatabase.containsKey(user.username())) {
-            throw new DataAccessException("User already exists.");
-        }
         userDatabase.put(user.username(), user);
     }
 

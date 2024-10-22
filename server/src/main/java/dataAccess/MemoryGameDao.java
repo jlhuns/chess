@@ -1,17 +1,15 @@
-package dataaccess;
+package dataAccess;
 
 import chess.ChessGame;
 import model.GameData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class MemoryGameDao implements GameDAO {
     private static MemoryGameDao instance;
     private final Map<Integer, GameData> gameDatabase = new HashMap<>();
-    private int currentGameId = 1;
 
     public static MemoryGameDao getInstance() {
         if (instance == null) {
@@ -22,9 +20,9 @@ public class MemoryGameDao implements GameDAO {
     }
 
     @Override
-    public void insertGame(GameData game) throws DataAccessException {
-        gameDatabase.put(currentGameId, game);
-        currentGameId++;
+    public int insertGame(GameData game) throws DataAccessException {
+        gameDatabase.put(game.gameID(), game);
+        return game.gameID();
     }
 
     @Override
@@ -51,7 +49,7 @@ public class MemoryGameDao implements GameDAO {
         }
     }
     @Override
-    public List<GameData> getAllGames() throws DataAccessException {
+    public ArrayList<GameData> getAllGames() throws DataAccessException {
         return new ArrayList<>(gameDatabase.values());
     }
 
@@ -69,13 +67,13 @@ public class MemoryGameDao implements GameDAO {
                 if (game.whiteUsername() != null) {
                     throw new DataAccessException("Error: white team is already occupied."); // Handle case where white team is already taken
                 }
-                yield new GameData(game.gameID(), username, game.blackUsername(), game.game());
+                yield new GameData(game.gameName(), game.gameID(), username, game.blackUsername(), game.game());
             }
             case BLACK -> {
                 if (game.blackUsername() != null) {
                     throw new DataAccessException("Error: black team is already occupied."); // Handle case where black team is already taken
                 }
-                yield new GameData(game.gameID(), game.whiteUsername(), username, game.game());
+                yield new GameData(game.gameName(), game.gameID(), game.whiteUsername(), username, game.game());
             }
             default -> throw new DataAccessException("Error: invalid team color."); // Handle invalid team color
         };

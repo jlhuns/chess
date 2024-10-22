@@ -1,7 +1,8 @@
 package handler.user;
 
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
+import dataAccess.BadRequestException;
+import dataAccess.DataAccessException;
 import model.AuthData;
 import model.UserData;
 import service.UserService;
@@ -16,7 +17,7 @@ public class RegisterHandler implements Route {
     UserService userService = UserService.getInstance();
 
     @Override
-    public Object handle(Request request, Response response) throws DataAccessException {
+    public Object handle(Request request, Response response) throws DataAccessException, BadRequestException {
 
         response.type("application/json");
 
@@ -29,5 +30,11 @@ public class RegisterHandler implements Route {
         RegisterResult result = new RegisterResult(authToken.username(), authToken.authToken());
 
         return gson.toJson(result);
+    }
+
+    public static record RegisterRequest(String username, String password, String email) {
+    }
+
+    public static record RegisterResult(String username, String authToken) {
     }
 }

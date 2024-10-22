@@ -1,9 +1,8 @@
 package handler.user;
 import com.google.gson.Gson;
-import dataaccess.AuthDAO;
-import dataaccess.DataAccessException;
+import dataAccess.DataAccessException;
+import dataAccess.UnauthorizedException;
 import model.AuthData;
-import org.eclipse.jetty.server.Authentication;
 import service.UserService;
 import spark.Request;
 import spark.Response;
@@ -14,7 +13,7 @@ public class LogoutHandler implements Route {
     private final Gson gson = new Gson();
 
     @Override
-    public Object handle(Request request, Response response) throws DataAccessException {
+    public Object handle(Request request, Response response) throws DataAccessException, UnauthorizedException {
         String authToken = request.headers("authorization");
 
         userService.logout(authToken);
@@ -22,5 +21,9 @@ public class LogoutHandler implements Route {
         response.status(200);
         return "{}";
     }
+
+    public static record LogoutRequest(AuthData authData){  }
+
+    public static record LogoutResponse(String response) {}
 }
 

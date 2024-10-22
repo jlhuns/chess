@@ -1,4 +1,4 @@
-package dataaccess;
+package dataAccess;
 
 import model.AuthData;
 
@@ -10,7 +10,7 @@ public interface AuthDAO {
 
     void updateAuth(AuthData authData) throws DataAccessException;
 
-    void deleteAuth(AuthData authData) throws DataAccessException;
+    void deleteAuth(AuthData authData) throws DataAccessException, UnauthorizedException;
 
     void clearAuthData() throws DataAccessException;
 }

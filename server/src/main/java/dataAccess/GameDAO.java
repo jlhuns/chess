@@ -1,4 +1,4 @@
-package dataaccess;
+package dataAccess;
 
 import chess.ChessGame;
 import model.GameData;
@@ -6,7 +6,7 @@ import model.GameData;
 import java.util.List;
 
 public interface GameDAO {
-    void insertGame(GameData game) throws DataAccessException;
+    int insertGame(GameData game) throws DataAccessException;
 
     GameData getGame(int gameID) throws DataAccessException;
 

@@ -1,5 +1,5 @@
-import dataaccess.DataAccessException;
-import dataaccess.MemoryUserDao;
+import dataAccess.DataAccessException;
+import dataAccess.MemoryUserDao;
 import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

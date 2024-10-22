@@ -1,9 +1,10 @@
 package service;
 
-import chess.ChessGame;
-import dataaccess.*;
+
+import dataAccess.*;
 import model.AuthData;
 import model.GameData;
+
 
 import java.util.List;
 
@@ -12,6 +13,8 @@ public class GameService {
 
     private final AuthDAO authDAO;  // For authentication validation
     private final GameDAO gameDAO;  // For retrieving games
+
+    private int currentGameId = 0;
 
     // Private constructor to prevent external instantiation
     public GameService(AuthDAO authDAO, GameDAO gameDAO) {
@@ -42,49 +45,103 @@ public class GameService {
         }
     }
 
-    public GameData createGame(AuthData authData, GameData gameData) throws DataAccessException {
-        if (authDAO.getAuthData(authData.authToken()) == null) {
+    public int createGame(String authToken, String gameName) throws DataAccessException {
+        // Check if the auth token is valid
+        if (authDAO.getAuthData(authToken) == null) {
             throw new DataAccessException("Error: unauthorized");  // Return 401 error
         }
 
         // Validate game data
-        if (gameData.game() == null) {
+        if (gameName == null || gameName.isEmpty()) {
             throw new DataAccessException("Error: bad request");  // Return 400 error
         }
 
         try {
-            // Insert the new game and return the created GameData object
-            gameDAO.insertGame(gameData);
-            return gameData;  // Assuming gameData is populated with gameID after insertion
+            currentGameId++;
+            // Create a new GameData object
+            GameData gameData = new GameData(gameName, currentGameId, null, null, null);
+
+            // Insert the new game into the database and retrieve the generated game ID
+            int gameID = gameDAO.insertGame(gameData);
+
+            return gameID;  // Return the generated game ID
         } catch (Exception e) {
             throw new DataAccessException("Error: " + e.getMessage());  // Return 500 error
         }
     }
 
-    public void JoinGame(AuthData authData, ChessGame.TeamColor teamColor, int gameID) throws DataAccessException {
-        if (authDAO.getAuthData(authData.authToken()) == null) {
+    public boolean joinGame(String authToken, String playerColor, int gameID) throws DataAccessException {
+        // Verify authorization
+        AuthData authData = authDAO.getAuthData(authToken);
+        if (authData == null) {
             throw new DataAccessException("Error: unauthorized");  // Return 401 error
         }
+
         GameData gameData;
-        try{
+        // Fetch the game data
+        try {
             gameData = gameDAO.getGame(gameID);
-        } catch (DataAccessException e){
-            throw new DataAccessException("Error: game not found");
-        }
-        try{
-            gameDAO.setTeamColor(gameID, teamColor, authData.username());
-        } catch (DataAccessException e){
-            throw new DataAccessException("Error: already taken");
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Error: game not found");  // Return 404 error
         }
 
-        gameData = switch (teamColor) {
-            case WHITE ->
-                    new GameData(gameData.gameID(), authData.username(), gameData.blackUsername(), gameData.game());
-            case BLACK ->
-                    new GameData(gameData.gameID(), gameData.whiteUsername(), authData.username(), gameData.game());
-            default -> throw new DataAccessException("Error: invalid team color"); // Handle unexpected cases
-        };
+        String whiteUser = gameData.whiteUsername();
+        String blackUser = gameData.blackUsername();
+        String intendedColor;
+        if (playerColor.equalsIgnoreCase("WHITE")) {
+            intendedColor = "WHITE";
+        } else if (playerColor.equalsIgnoreCase("BLACK")) {
+            intendedColor = "BLACK";
+        } else {
+            // Handle case where input is "WHITE/BLACK"
+            // You might want to prompt for a valid choice or randomly select a color.
+            intendedColor = decideColor(authData.username(), whiteUser, blackUser);
+        }
 
-        gameDAO.updateGame(gameData);
+        // Check for the intended player color
+        if (intendedColor.equals("WHITE")) {
+            // Check if the user is already playing as black
+            if (blackUser != null && blackUser.equals(authData.username())) {
+                return false; // User can't join as white if they are already black
+            }
+            // Check if the white spot is taken
+            if (whiteUser != null && !whiteUser.equals(authData.username())) {
+                return false; // Spot taken by someone else
+            } else {
+                whiteUser = authData.username(); // Assign username to white player
+            }
+        } else if (intendedColor.equals("BLACK")) {
+            // Check if the user is already playing as white
+            if (whiteUser != null && whiteUser.equals(authData.username())) {
+                return false; // User can't join as black if they are already white
+            }
+            // Check if the black spot is taken
+            if (blackUser != null && !blackUser.equals(authData.username())) {
+                return false; // Spot taken by someone else
+            } else {
+                blackUser = authData.username(); // Assign username to black player
+            }
+        }
+
+        // Create updated GameData with new usernames
+        GameData updatedGameData = new GameData(gameData.gameName(), gameData.gameID(), whiteUser, blackUser, gameData.game());
+
+        // Update the game data in the DAO
+        gameDAO.updateGame(updatedGameData);
+
+        return true;  // Return true if successfully joined
+    }
+
+    private String decideColor(String username, String whiteUser, String blackUser) {
+        // Logic to decide color for the user
+        // For example, you could randomize, prefer one color, or simply return a specific message
+        // Here’s an example logic:
+        if (whiteUser == null) {
+            return "WHITE"; // Join as white if no one is assigned
+        } else if (blackUser == null) {
+            return "BLACK"; // Join as black if no one is assigned
+        } else {
+            return ""; // No spots available
+        }
     }
 }
