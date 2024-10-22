@@ -4,7 +4,7 @@ import chess.ChessGame;
 
 import java.util.Objects;
 
-public record GameData(String gameName, int gameID, String whiteUsername, String blackUsername, ChessGame game) {
+public record GameData(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game) {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

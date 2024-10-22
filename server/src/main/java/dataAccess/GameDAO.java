@@ -12,11 +12,7 @@ public interface GameDAO {
 
     void updateGame(GameData game) throws DataAccessException;
 
-    void deleteGame(int gameID) throws DataAccessException;
-
     List<GameData> getAllGames() throws DataAccessException;
-
-    void setTeamColor(int gameID, ChessGame.TeamColor teamColor, String username) throws DataAccessException;
 
     void clearGameData() throws DataAccessException;
 }

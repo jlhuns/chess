@@ -28,7 +28,7 @@ public class LoginHandler implements Route {
         return gson.toJson(result);
     }
 
-    public static record LoginRequest(String username, String password) {}
+    public record LoginRequest(String username, String password) {}
 
-    public static record LoginResult(String username, String authToken) {}
+    public record LoginResult(String username, String authToken) {}
 }

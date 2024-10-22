@@ -1,6 +1,7 @@
 package handler.game;
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
+import dataAccess.UnauthorizedException;
 import model.GameData;
 import service.GameService;
 import spark.Request;
@@ -14,7 +15,7 @@ public class CreateGameHandler implements Route {
     GameService gameService = GameService.getInstance();
 
     @Override
-    public Object handle(Request request, Response response) throws DataAccessException {
+    public Object handle(Request request, Response response) throws DataAccessException, UnauthorizedException {
         GameData gameData = gson.fromJson(request.body(), GameData.class);
 
         String authToken = request.headers("authorization");

@@ -10,7 +10,6 @@ import spark.Route;
 
 public class LogoutHandler implements Route {
     UserService userService = UserService.getInstance();
-    private final Gson gson = new Gson();
 
     @Override
     public Object handle(Request request, Response response) throws DataAccessException, UnauthorizedException {
@@ -21,9 +20,5 @@ public class LogoutHandler implements Route {
         response.status(200);
         return "{}";
     }
-
-    public static record LogoutRequest(AuthData authData){  }
-
-    public static record LogoutResponse(String response) {}
 }
 

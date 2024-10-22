@@ -1,6 +1,8 @@
 package handler.game;
 import com.google.gson.Gson;
+import dataAccess.BadRequestException;
 import dataAccess.DataAccessException;
+import dataAccess.UnauthorizedException;
 import service.GameService;
 import spark.Request;
 import spark.Response;
@@ -11,7 +13,7 @@ public class JoinGameHandler implements Route {
     GameService gameService = GameService.getInstance();
 
     @Override
-    public Object handle(Request request, Response response) throws DataAccessException {
+    public Object handle(Request request, Response response) throws DataAccessException, UnauthorizedException, BadRequestException {
         String authToken = request.headers("authorization");
         record JoinGameData(String playerColor, int gameID) {}
         JoinGameData joinData = new Gson().fromJson(request.body(), JoinGameData.class);

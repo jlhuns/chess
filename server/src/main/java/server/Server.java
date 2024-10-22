@@ -4,7 +4,7 @@ import dataAccess.AlreadyTakenException;
 import dataAccess.BadRequestException;
 import dataAccess.UnauthorizedException;
 import handler.game.CreateGameHandler;
-import handler.game.DBHandler;
+import handler.DBHandler;
 import handler.game.JoinGameHandler;
 import handler.game.ListGamesHandler;
 import handler.user.LoginHandler;
@@ -31,9 +31,6 @@ public class Server {
         Spark.put("/game", new JoinGameHandler());
 
         Spark.delete("/db", new DBHandler());
-
-        //This line initializes the server and can be removed once you have a functioning endpoint 
-//        Spark.init();
 
         Spark.exception(BadRequestException.class, this::badRequestExceptionHandler);
         Spark.exception(UnauthorizedException.class, this::unauthorizedExceptionHandler);

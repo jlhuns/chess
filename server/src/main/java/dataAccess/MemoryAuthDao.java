@@ -11,7 +11,6 @@ public class MemoryAuthDao implements AuthDAO {
 
     public static MemoryAuthDao getInstance() {
         if (instance == null) {
-            // Initialize the singleton instance if it hasn't been initialized yet
             instance = new MemoryAuthDao();
         }
         return instance;
@@ -26,24 +25,16 @@ public class MemoryAuthDao implements AuthDAO {
     }
 
     @Override
-    public AuthData getAuthData(String authToken) throws DataAccessException {
+    public AuthData getAuthData(String authToken) throws UnauthorizedException {
         AuthData auth = authDatabase.get(authToken);
         if (auth == null) {
-            throw new DataAccessException("Auth data not found.");
+            throw new UnauthorizedException();
         }
         return auth;
     }
 
     @Override
-    public void updateAuth(AuthData authData) throws DataAccessException {
-        if (!authDatabase.containsKey(authData.authToken())) {
-            throw new DataAccessException("Auth data not found.");
-        }
-        authDatabase.put(authData.authToken(), authData);
-    }
-
-    @Override
-    public void deleteAuth(AuthData authData) throws DataAccessException, UnauthorizedException {
+    public void deleteAuth(AuthData authData) throws UnauthorizedException {
         if (authDatabase.remove(authData.authToken()) == null) {
             throw new UnauthorizedException();
         }

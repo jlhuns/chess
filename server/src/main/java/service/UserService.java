@@ -11,14 +11,12 @@ public class UserService {
     private final UserDAO userDAO;  // For managing user data
     private final AuthDAO authDAO;
 
-    // Constructor to initialize UserDAO and AuthDAO
     public UserService(UserDAO userDAO, AuthDAO authDAO) {
         this.userDAO = userDAO;
         this.authDAO = authDAO;
     }
     public static UserService getInstance() {
         if (instance == null) {
-            // Create your DAOs here
             UserDAO userDAO = MemoryUserDao.getInstance();
             AuthDAO authDAO = MemoryAuthDao.getInstance();
             instance = new UserService(userDAO, authDAO);
@@ -28,12 +26,10 @@ public class UserService {
 
     // Register a new user and create an AuthData object
     public AuthData register(UserData user) throws DataAccessException, BadRequestException {
-        // Check if the user data is valid
         if (user == null || user.username() == null || user.username().trim().isEmpty() || user.password() == null || user.password().trim().isEmpty()) {
             throw new BadRequestException("Username or password cannot be null or empty.");
         }
 
-        // Check if the user does not exist before inserting
         if (userDAO.getUser(user.username()) == null) {
             try {
                 userDAO.insertUser(user);
@@ -44,11 +40,9 @@ public class UserService {
             throw new AlreadyTakenException("User already exists.");
         }
 
-        // Generate a session token
         String token = UUID.randomUUID().toString();
         AuthData authData = new AuthData(token, user.username());
 
-        // Store the session using AuthDAO
         authDAO.insertAuth(authData);
 
         return authData;
@@ -62,20 +56,21 @@ public class UserService {
             throw new UnauthorizedException();
         }
 
-        // Generate a session token
         String token = UUID.randomUUID().toString();
         AuthData authData = new AuthData(token, user.username());
 
-        // Store the session using AuthDAO
         authDAO.insertAuth(authData);
 
         return authData;
     }
 
-    // Logout method to invalidate a session
     public void logout(String authToken) throws DataAccessException, UnauthorizedException {
-        // Remove the session using AuthDAO
-        AuthData authData = authDAO.getAuthData(authToken);
+        AuthData authData;
+        try{
+            authData = authDAO.getAuthData(authToken);
+        }catch (DataAccessException e) {
+            throw new UnauthorizedException();
+        }
         authDAO.deleteAuth(authData);
     }
 }
