@@ -5,9 +5,18 @@ import model.UserData;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MemoryUserDAO implements UserDAO {
+public class MemoryUserDao implements UserDAO {
+    private static MemoryUserDao instance;
 
     private final Map<String, UserData> userDatabase = new HashMap<>();
+
+    public static MemoryUserDao getInstance() {
+        if (instance == null) {
+            // Initialize the singleton instance if it hasn't been initialized yet
+            instance = new MemoryUserDao();
+        }
+        return instance;
+    }
 
     @Override
     public void insertUser(UserData user) throws DataAccessException {
@@ -20,9 +29,6 @@ public class MemoryUserDAO implements UserDAO {
     @Override
     public UserData getUser(String username) throws DataAccessException {
         UserData user = userDatabase.get(username);
-        if (user == null) {
-            throw new DataAccessException("User not found.");
-        }
         return user;
     }
 

@@ -1,25 +1,36 @@
 package service;
 
 import chess.ChessGame;
-import dataaccess.AuthDAO;
-import dataaccess.GameDAO;
-import dataaccess.DataAccessException;
+import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 
 import java.util.List;
 
 public class GameService {
+    private static GameService instance;  // Singleton instance
+
     private final AuthDAO authDAO;  // For authentication validation
     private final GameDAO gameDAO;  // For retrieving games
 
+    // Private constructor to prevent external instantiation
     public GameService(AuthDAO authDAO, GameDAO gameDAO) {
         this.authDAO = authDAO;
         this.gameDAO = gameDAO;
     }
 
-    public List<GameData> listGames(AuthData authData) throws DataAccessException {
-        if (authDAO.getAuthData(authData.authToken()) == null) {
+    // Static method to retrieve the singleton instance
+    public static GameService getInstance() {
+        if (instance == null) {
+            AuthDAO authDAO = MemoryAuthDao.getInstance();
+            GameDAO gameDAO = MemoryGameDao.getInstance();
+            instance = new GameService(authDAO, gameDAO);
+        }
+        return instance;
+    }
+
+    public List<GameData> listGames(String authToken) throws DataAccessException {
+        if (authDAO.getAuthData(authToken) == null) {
             throw new DataAccessException("Error: unauthorized");  // Return 401 error
         }
 

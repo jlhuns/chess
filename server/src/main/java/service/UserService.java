@@ -1,21 +1,29 @@
 package service;
 
-import dataaccess.AuthDAO;
-import dataaccess.UserDAO;
-import dataaccess.DataAccessException;
+import dataaccess.*;
 import model.UserData;
 import model.AuthData;
 
 import java.util.UUID;
 
 public class UserService {
+    private static UserService instance;
     private final UserDAO userDAO;  // For managing user data
-    private final AuthDAO authDAO;  // For managing authentication tokens
+    private final AuthDAO authDAO;
 
     // Constructor to initialize UserDAO and AuthDAO
     public UserService(UserDAO userDAO, AuthDAO authDAO) {
         this.userDAO = userDAO;
         this.authDAO = authDAO;
+    }
+    public static UserService getInstance() {
+        if (instance == null) {
+            // Create your DAOs here
+            UserDAO userDAO = MemoryUserDao.getInstance();
+            AuthDAO authDAO = MemoryAuthDao.getInstance();
+            instance = new UserService(userDAO, authDAO);
+        }
+        return instance;
     }
 
     // Register a new user and create an AuthData object
@@ -56,8 +64,10 @@ public class UserService {
     }
 
     // Logout method to invalidate a session
-    public void logout(AuthData auth) throws DataAccessException {
+    public void logout(String authToken) throws DataAccessException {
         // Remove the session using AuthDAO
-        authDAO.deleteAuth(auth.authToken());
+        System.out.println(authToken);
+        AuthData authData = authDAO.getAuthData(authToken);
+        authDAO.deleteAuth(authData);
     }
 }

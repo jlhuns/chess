@@ -6,7 +6,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MemoryAuthDao implements AuthDAO {
+    private static MemoryAuthDao instance;  // Singleton instance
     private final Map<String, AuthData> authDatabase = new HashMap<>();
+
+    public static MemoryAuthDao getInstance() {
+        if (instance == null) {
+            // Initialize the singleton instance if it hasn't been initialized yet
+            instance = new MemoryAuthDao();
+        }
+        return instance;
+    }
 
     @Override
     public void insertAuth(AuthData authData) throws DataAccessException {
@@ -34,8 +43,8 @@ public class MemoryAuthDao implements AuthDAO {
     }
 
     @Override
-    public void deleteAuth(String authToken) throws DataAccessException {
-        if (authDatabase.remove(authToken) == null) {
+    public void deleteAuth(AuthData authData) throws DataAccessException {
+        if (authDatabase.remove(authData.authToken()) == null) {
             throw new DataAccessException("Auth data not found.");
         }
     }

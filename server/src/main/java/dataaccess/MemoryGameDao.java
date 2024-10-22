@@ -9,8 +9,17 @@ import java.util.List;
 import java.util.Map;
 
 public class MemoryGameDao implements GameDAO {
+    private static MemoryGameDao instance;
     private final Map<Integer, GameData> gameDatabase = new HashMap<>();
     private int currentGameId = 1;
+
+    public static MemoryGameDao getInstance() {
+        if (instance == null) {
+            // Initialize the singleton instance if it hasn't been initialized yet
+            instance = new MemoryGameDao();
+        }
+        return instance;
+    }
 
     @Override
     public void insertGame(GameData game) throws DataAccessException {
