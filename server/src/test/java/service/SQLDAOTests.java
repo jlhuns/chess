@@ -122,4 +122,16 @@ public class SQLDAOTests {
 
         //DELETE FROM users WHERE username = 'user_to_delete';
     }
+
+    @Test
+    public void getUser() throws Exception {
+        SQLUserDAO dao = new SQLUserDAO();
+        dao.configureDatabase();
+        dao.insertUser(existingUser);
+        UserData retrievedUser = dao.getUser(existingUser.username());
+        assertNotNull(retrievedUser, "Retrieved user should not be null.");
+        assertEquals(existingUser.username(), retrievedUser.username(), "Usernames should match.");
+        assertEquals(existingUser.email(), retrievedUser.email(), "Emails should match.");
+//        assertEquals(existingUser.password(), retrievedUser.password(), "Passwords should match.");
+    }
 }
