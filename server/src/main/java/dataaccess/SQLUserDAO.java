@@ -3,7 +3,9 @@ package dataaccess;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
+import javax.xml.crypto.Data;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import static org.mockito.internal.matchers.text.ValuePrinter.print;
@@ -12,12 +14,36 @@ public class SQLUserDAO implements UserDAO {
 
     @Override
     public void insertUser(UserData user) throws DataAccessException {
+        try(var conn = DatabaseManager.getConnection()){
+            try(var stmt = conn.prepareStatement("INSERT INTO user (username, password, email) VALUES (?, ?, ?)")){
+                stmt.setString(1, user.username());
+                stmt.setString(2, BCrypt.hashpw(user.password(), BCrypt.gensalt()));
+                stmt.setString(3, user.email());
+                stmt.executeUpdate();
+            }
+
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
 
     }
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
-        return null;
+        String sql = "SELECT username, password, email FROM user WHERE username = ?";
+        try(var conn = DatabaseManager.getConnection()){
+            var pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, username);
+            try(var stmt = pstmt.executeQuery()){
+                if(stmt.next()){
+                    return new UserData(stmt.getString(1), stmt.getString(2), stmt.getString(3));
+                }else{
+                    return null; //no user found with that name
+                }
+            }
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
