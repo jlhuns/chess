@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.*;
+import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -17,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class SQLDAOTests {
 
     private static UserData existingUser;
+    private static UserData existingUser2;
     private static TestServerFacade serverFacade;
     private static Server server;
     private String existingAuth;
@@ -35,11 +37,14 @@ public class SQLDAOTests {
         serverFacade = new TestServerFacade("localhost", Integer.toString(port));
 
         existingUser = new UserData("ExistingUser", "existingUserPassword", "eu@mail.com");
+        existingUser2 = new UserData("ExistingUser2", "existingUserPassword2", "eu2@mail.com");
+
     }
 
     @BeforeEach
     public void setup() {
         serverFacade.clear();
+
 
         //one user already logged in
 //        TestAuthResult regResult = serverFacade.register(existingUser);
@@ -93,10 +98,8 @@ public class SQLDAOTests {
     public void addUser() throws Exception {
         SQLUserDAO dao = new SQLUserDAO();
         dao.configureDatabase();
-
         // Create a sample user
         UserData existingUser = new UserData("testUser", "password", "testUser@example.com");
-
         // Insert the user
         dao.insertUser(existingUser);
 
@@ -133,5 +136,54 @@ public class SQLDAOTests {
         assertEquals(existingUser.username(), retrievedUser.username(), "Usernames should match.");
         assertEquals(existingUser.email(), retrievedUser.email(), "Emails should match.");
 //        assertEquals(existingUser.password(), retrievedUser.password(), "Passwords should match.");
+    }
+
+    @Test
+    public void clearUserDB() throws Exception {
+        SQLUserDAO dao = new SQLUserDAO();
+        dao.configureDatabase();
+        dao.insertUser(existingUser2);
+        dao.clearUserData();
+        try (Connection connection = DatabaseManager.getConnection();
+             var stmt = connection.prepareStatement("SELECT * FROM user");
+             ResultSet resultSet = stmt.executeQuery()) {
+
+            // Assert that no records are found in the table
+            assertFalse(resultSet.next(), "Users table should be empty after calling clearUserData.");
+
+        } catch (SQLException e) {
+            fail("Database connection or query failed: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void addAuth() throws Exception {
+        SQLAuthDAO dao = new SQLAuthDAO();
+        dao.configureDatabase();
+        // Create a sample user
+        UserData existingUser = new UserData("testUser", "password", "testUser@example.com");
+        AuthData authData = new AuthData("1234", "testUser");
+        // Insert the user
+        dao.insertAuth(authData);
+
+        // Verify the user was added
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     "SELECT * FROM auth WHERE username = ?")) {
+
+            preparedStatement.setString(1, existingUser.username());
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            // Check that the result set is not empty, which confirms the user was inserted
+            assertTrue(resultSet.next(), "User should be present in the database after insertion.");
+
+            // Optionally, verify the inserted data matches
+            assertEquals(authData.username(), resultSet.getString("username"));
+            assertEquals(authData.authToken(), resultSet.getString("authToken"));
+//            assertEquals(existingUser.password(), resultSet.getString("password"));
+
+        } catch (SQLException e) {
+            fail("Database connection or table verification failed: " + e.getMessage());
+        }
     }
 }

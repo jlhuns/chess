@@ -9,12 +9,32 @@ public class SQLAuthDAO implements AuthDAO {
 
     @Override
     public void insertAuth(AuthData authData) throws DataAccessException {
-
+        try(var conn = DatabaseManager.getConnection()){
+            try(var stmt = conn.prepareStatement("INSERT INTO auth(username, authToken) VALUES (?,?)")){
+                stmt.setString(1, authData.username());
+                stmt.setString(2, authData.authToken());
+                stmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public AuthData getAuthData(String authToken) throws DataAccessException, UnauthorizedException {
-        return null;
+        try(var conn = DatabaseManager.getConnection()){
+            var pstmt = conn.prepareStatement("SELECT username, authToken FROM auth WHERE username = ?");
+            pstmt.setString(1, authToken);
+            try(var rs = pstmt.executeQuery()){
+                if(rs.next()){
+                    return new AuthData(rs.getString("username"), rs.getString("authToken"));
+                } else{
+                    return null;
+                }
+            }
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
