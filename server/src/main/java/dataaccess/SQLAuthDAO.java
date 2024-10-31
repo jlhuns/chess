@@ -23,11 +23,11 @@ public class SQLAuthDAO implements AuthDAO {
     @Override
     public AuthData getAuthData(String authToken) throws DataAccessException, UnauthorizedException {
         try(var conn = DatabaseManager.getConnection()){
-            var pstmt = conn.prepareStatement("SELECT username, authToken FROM auth WHERE username = ?");
+            var pstmt = conn.prepareStatement("SELECT username, authToken FROM auth WHERE authToken = ?");
             pstmt.setString(1, authToken);
             try(var rs = pstmt.executeQuery()){
                 if(rs.next()){
-                    return new AuthData(rs.getString("username"), rs.getString("authToken"));
+                    return new AuthData(rs.getString("authToken"), rs.getString("username"));
                 } else{
                     return null;
                 }
@@ -39,12 +39,27 @@ public class SQLAuthDAO implements AuthDAO {
 
     @Override
     public void deleteAuth(AuthData authData) throws DataAccessException, UnauthorizedException {
+        try(var conn = DatabaseManager.getConnection()){
+            try(var stmt = conn.prepareStatement("DELETE FROM auth WHERE authToken = ?")){
+                stmt.setString(1, authData.authToken());
+                stmt.executeUpdate();
+            }
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+
 
     }
 
     @Override
     public void clearAuthData() throws DataAccessException {
-
+        try(var conn = DatabaseManager.getConnection()){
+            try(var stmt = conn.prepareStatement("DELETE FROM auth")){
+                stmt.executeUpdate();
+            }
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
     }
 
     private final String[] createStatements = {

@@ -186,4 +186,87 @@ public class SQLDAOTests {
             fail("Database connection or table verification failed: " + e.getMessage());
         }
     }
+    @Test
+    public void getAuth() throws Exception {
+        SQLAuthDAO dao = new SQLAuthDAO();
+        dao.configureDatabase();
+        // Create a sample user
+        UserData existingUser = new UserData("testUser3", "password", "testUser@example.com");
+        AuthData authData = new AuthData("12345", "testUser3");
+        // Insert the user
+        dao.insertAuth(authData);
+        AuthData result = dao.getAuthData(authData.authToken());
+
+        // Verify the user was added
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     "SELECT * FROM auth WHERE username = ?")) {
+
+            preparedStatement.setString(1, existingUser.username());
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            // Check that the result set is not empty, which confirms the user was inserted
+            assertTrue(resultSet.next(), "User should be present in the database after insertion.");
+
+            // Optionally, verify the inserted data matches
+            assertEquals(result.username(), resultSet.getString("username"));
+            assertEquals(result.authToken(), resultSet.getString("authToken"));
+//            assertEquals(existingUser.password(), resultSet.getString("password"));
+
+        } catch (SQLException e) {
+            fail("Database connection or table verification failed: " + e.getMessage());
+        }
+    }
+    @Test
+    public void deleteAuth() throws Exception {
+        SQLAuthDAO dao = new SQLAuthDAO();
+        dao.configureDatabase();
+        // Create a sample user
+        UserData existingUser = new UserData("testUser4", "password", "testUser@example.com");
+        AuthData authData = new AuthData("123456", "testUser4");
+        // Insert the user
+        dao.insertAuth(authData);
+        dao.deleteAuth(authData);
+
+        // Verify the user was added
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     "SELECT * FROM auth WHERE username = ?")) {
+
+            preparedStatement.setString(1, existingUser.username());
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            // Check that the result set is not empty, which confirms the user was inserted
+            assertFalse(resultSet.next(), "auth should not be present in the database deletion.");
+
+        } catch (SQLException e) {
+            fail("Database connection or table verification failed: " + e.getMessage());
+        }
+    }
+    @Test
+    public void clearAuth() throws Exception {
+        SQLAuthDAO dao = new SQLAuthDAO();
+        dao.configureDatabase();
+        // Create a sample user
+        UserData existingUser = new UserData("testUser4", "password", "testUser@example.com");
+        AuthData authData = new AuthData("123456", "testUser4");
+        // Insert the user
+        dao.insertAuth(authData);
+        dao.clearAuthData();
+
+        // Verify the user was added
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     "SELECT * FROM auth WHERE username = ?")) {
+
+            preparedStatement.setString(1, existingUser.username());
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            // Check that the result set is not empty, which confirms the user was inserted
+            assertFalse(resultSet.next(), "auth should not be present in the database after cleared.");
+
+        } catch (SQLException e) {
+            fail("Database connection or table verification failed: " + e.getMessage());
+        }
+    }
 }
