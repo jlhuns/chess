@@ -56,7 +56,7 @@ public class UserService {
         UserData storedUser = userDAO.getUser(user.username());
 
         if (storedUser == null || !BCrypt.checkpw(user.password(), storedUser.password())) {
-            throw new UnauthorizedException();
+            throw new UnauthorizedException(); //comment
         }
 
         String token = UUID.randomUUID().toString();
