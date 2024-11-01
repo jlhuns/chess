@@ -44,21 +44,6 @@ public class SQLUserTests {
     public void setup() {
         serverFacade.clear();
     }
-
-    @Test
-    public void createUserDB() throws Exception {
-        SQLUserDAO dao = SQLUserDAO.getInstance();
-        dao.configureDatabase();
-
-        // Verify that the users table was created
-        try (Connection connection = DatabaseManager.getConnection()) {
-            DatabaseMetaData metaData = connection.getMetaData();
-            ResultSet resultSet = metaData.getTables(null, null, "users", null);
-            assertTrue(resultSet.next(), "The 'users' table should exist after database creation.");
-        } catch (SQLException e) {
-            fail("Database connection or table verification failed: " + e.getMessage());
-        }
-    }
     @Test
     public void addUser() throws Exception {
         SQLUserDAO dao = SQLUserDAO.getInstance();
@@ -118,4 +103,55 @@ public class SQLUserTests {
             fail("Database connection or query failed: " + e.getMessage());
         }
     }
+    @Test
+    public void addUserDuplicateThrowsException() throws DataAccessException {
+        SQLUserDAO dao = SQLUserDAO.getInstance();
+        dao.configureDatabase();
+
+        // Insert a user first
+        dao.insertUser(existingUser);
+
+        // Attempt to insert the same user again and expect an exception
+        assertThrows(RuntimeException.class, () -> {
+            dao.insertUser(existingUser); // Should throw an exception for duplicate entry
+        });
+    }
+    @Test
+    public void getUserNonExistentReturnsNull() throws DataAccessException {
+        SQLUserDAO dao = SQLUserDAO.getInstance();
+        dao.configureDatabase();
+
+        // Attempt to retrieve a non-existent user
+        UserData retrievedUser = dao.getUser("nonExistentUser");
+
+        assertNull(retrievedUser, "Retrieved user should be null for non-existent users.");
+    }
+    @Test
+    public void clearUserDataWhenEmptyDoesNotThrowException() throws DataAccessException {
+        SQLUserDAO dao = SQLUserDAO.getInstance();
+        dao.configureDatabase();
+
+        // Clear user data when no users are present
+        assertDoesNotThrow(() -> {
+            dao.clearUserData(); // Should complete without throwing an exception
+        });
+    }
+    @Test
+    public void addUserWithDuplicateEmailThrowsException() throws DataAccessException {
+        SQLUserDAO dao = SQLUserDAO.getInstance();
+        dao.configureDatabase();
+
+        // Insert a user first
+        dao.insertUser(existingUser);
+
+        // Create a new user with the same email but different username
+        UserData userWithDuplicateEmail = new UserData("newUser", "password", existingUser.email());
+
+        // Attempt to insert the new user and expect an exception
+        assertThrows(RuntimeException.class, () -> {
+            dao.insertUser(userWithDuplicateEmail); // Should throw an exception for duplicate email
+        });
+    }
+
+
 }

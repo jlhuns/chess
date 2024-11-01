@@ -12,6 +12,7 @@ import passoff.server.TestServerFacade;
 import server.Server;
 
 import java.sql.*;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 public class SQLGameTests {
@@ -107,5 +108,65 @@ public class SQLGameTests {
         } catch (SQLException e) {
             fail("Database connection or table verification failed: " + e.getMessage());
         }
+    }
+    @Test
+    public void addGameDuplicateThrowsException() throws DataAccessException {
+        SQLGameDAO dao = SQLGameDAO.getInstance();
+        dao.configureDatabase();
+
+        // Create and insert a game
+        ChessGame newGame = new ChessGame();
+        GameData game = new GameData(1, "test1", "test2", "Game1", newGame);
+        dao.insertGame(game);
+
+        // Attempt to insert the same game again and expect an exception
+        assertThrows(RuntimeException.class, () -> {
+            dao.insertGame(game); // Should throw an exception for duplicate entry
+        });
+    }
+    @Test
+    public void getGameNonExistentReturnsNull() throws DataAccessException {
+        SQLGameDAO dao = SQLGameDAO.getInstance();
+        dao.configureDatabase();
+
+        // Attempt to retrieve a non-existent game
+        GameData retrievedGame = dao.getGame(999); // Non-existent gameID
+        assertNull(retrievedGame, "Retrieved game should be null for non-existent games.");
+    }
+    @Test
+    public void getAllGames() throws Exception {
+        SQLGameDAO dao = SQLGameDAO.getInstance();
+        dao.configureDatabase();
+
+        // Create and insert multiple games
+        ChessGame newGame1 = new ChessGame();
+        GameData game1 = new GameData(4, "test1", "test2", "Game4", newGame1);
+        dao.insertGame(game1);
+
+        ChessGame newGame2 = new ChessGame();
+        GameData game2 = new GameData(5, "test3", "test4", "Game5", newGame2);
+        dao.insertGame(game2);
+
+        // Retrieve all games
+        List<GameData> games = dao.getAllGames();
+
+        assertNotNull(games, "Game list should not be null.");
+        assertEquals(2, games.size(), "There should be two games in the list.");
+    }
+    @Test
+    public void clearGameData() throws Exception {
+        SQLGameDAO dao = SQLGameDAO.getInstance();
+        dao.configureDatabase();
+
+        // Insert a game
+        ChessGame newGame = new ChessGame();
+        GameData game = new GameData(6, "test1", "test2", "Game6", newGame);
+        dao.insertGame(game);
+
+        // Clear game data
+        dao.clearGameData();
+
+        // Verify that no games exist
+        assertTrue(dao.getAllGames().isEmpty(), "Game list should be empty after clearing.");
     }
 }
