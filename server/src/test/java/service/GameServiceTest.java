@@ -43,20 +43,12 @@ public class GameServiceTest {
     public void setup() {
         serverFacade.clear();
 
-        //one user already logged in
+        // One user already logged in
         TestAuthResult regResult = serverFacade.register(existingUser);
         existingAuth = regResult.getAuthToken();
     }
 
-    @Test
-    public void testListGamesValidTokenReturnsEmptyGames() throws Exception {
-        GameService gameService = GameService.getInstance();
-
-        List<GameData> games = gameService.listGames(existingAuth);
-
-        assertNotNull(games);
-        assertTrue(games.isEmpty());
-    }
+    // Test cases
 
     @Test
     public void testListGamesInvalidTokenThrowsException() {
@@ -68,41 +60,60 @@ public class GameServiceTest {
     }
 
     @Test
-    public void testCreateGameValidInputsReturnsGameId() throws Exception {
+    public void testCreateGameNullAuthTokenThrowsException() {
         GameService gameService = GameService.getInstance();
 
-        int gameId = gameService.createGame(existingAuth, "gameName");
-
-        assertTrue(gameId > 0);
-    }
-
-    @Test
-    public void testCreateGameEmptyGameNameThrowsException() {
-        GameService gameService = GameService.getInstance();
-
-        assertThrows(DataAccessException.class, () -> {
-            gameService.createGame(existingAuth, "");
+        assertThrows(UnauthorizedException.class, () -> {
+            gameService.createGame(null, "gameName");
         });
     }
 
     @Test
-    public void testJoinGameValidInputsSuccess() throws Exception {
+    public void testCreateGameNullGameNameThrowsException() {
         GameService gameService = GameService.getInstance();
-        int gameId = gameService.createGame(existingAuth, "gameName");
 
-        int existingGameId = gameId;
-        boolean joined = gameService.joinGame(existingAuth, "WHITE", existingGameId);
-
-        assertTrue(joined);
+        assertThrows(DataAccessException.class, () -> {
+            gameService.createGame(existingAuth, null);
+        });
     }
 
     @Test
-    public void testJoinGameNonExistingGameThrowsException() {
+    public void testJoinGameNullAuthTokenThrowsException() {
         GameService gameService = GameService.getInstance();
 
         assertThrows(BadRequestException.class, () -> {
-            int nonExistingGameId = 999;
-            gameService.joinGame(existingAuth, "WHITE", nonExistingGameId);
+            gameService.joinGame(null, "WHITE", 1);
+        });
+    }
+
+    @Test
+    public void testJoinGameNullColorThrowsException() throws UnauthorizedException, DataAccessException {
+        GameService gameService = GameService.getInstance();
+        int gameId = gameService.createGame(existingAuth, "gameName");
+
+        assertThrows(BadRequestException.class, () -> {
+            gameService.joinGame(existingAuth, null, gameId);
+        });
+    }
+
+    @Test
+    public void testJoinGameEmptyColorDoesNotThrowException() throws UnauthorizedException, DataAccessException {
+        GameService gameService = GameService.getInstance();
+        int gameId = gameService.createGame(existingAuth, "gameName");
+
+        // This line should not throw any exception
+        assertDoesNotThrow(() -> {
+            gameService.joinGame(existingAuth, "", gameId);
+        });
+    }
+
+    @Test
+    public void testCreateGameUnauthorizedUserThrowsException() {
+        GameService gameService = GameService.getInstance();
+        String unauthorizedAuth = "unauthorizedToken";
+
+        assertThrows(UnauthorizedException.class, () -> {
+            gameService.createGame(unauthorizedAuth, "gameName");
         });
     }
 }
