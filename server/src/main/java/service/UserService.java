@@ -3,6 +3,7 @@ package service;
 import dataaccess.*;
 import model.UserData;
 import model.AuthData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.UUID;
 
@@ -17,8 +18,8 @@ public class UserService {
     }
     public static UserService getInstance() {
         if (instance == null) {
-            UserDAO userDAO = MemoryUserDao.getInstance();
-            AuthDAO authDAO = MemoryAuthDao.getInstance();
+            UserDAO userDAO = SQLUserDAO.getInstance();
+            AuthDAO authDAO = SQLAuthDAO.getInstance();
             instance = new UserService(userDAO, authDAO);
         }
         return instance;
@@ -54,7 +55,7 @@ public class UserService {
     public AuthData login(UserData user) throws UnauthorizedException, DataAccessException {
         UserData storedUser = userDAO.getUser(user.username());
 
-        if (storedUser == null || !storedUser.password().equals(user.password())) {
+        if (storedUser == null || !BCrypt.checkpw(user.password(), storedUser.password())) {
             throw new UnauthorizedException();
         }
 

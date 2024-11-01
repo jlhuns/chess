@@ -6,6 +6,23 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class SQLAuthDAO implements AuthDAO {
+    private static SQLAuthDAO instance;
+
+    // Private constructor to prevent instantiation
+    private SQLAuthDAO() {}
+
+    // Public static method to get the instance
+    public static SQLAuthDAO getInstance() {
+        if (instance == null) {
+            synchronized (SQLAuthDAO.class) {
+                if (instance == null) {
+                    instance = new SQLAuthDAO();
+                }
+            }
+        }
+        return instance;
+    }
+
 
     @Override
     public void insertAuth(AuthData authData) throws DataAccessException {

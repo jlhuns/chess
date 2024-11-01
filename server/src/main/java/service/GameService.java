@@ -25,8 +25,8 @@ public class GameService {
 
     public static GameService getInstance() {
         if (instance == null) {
-            AuthDAO authDAO = MemoryAuthDao.getInstance();
-            GameDAO gameDAO = MemoryGameDao.getInstance();
+            AuthDAO authDAO = SQLAuthDAO.getInstance();
+            GameDAO gameDAO = SQLGameDAO.getInstance();
             instance = new GameService(authDAO, gameDAO);
         }
         return instance;

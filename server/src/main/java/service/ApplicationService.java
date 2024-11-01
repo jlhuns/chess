@@ -16,9 +16,9 @@ public class ApplicationService {
 
     public static ApplicationService getInstance() {
         if (instance == null) {
-            AuthDAO authDAO = MemoryAuthDao.getInstance();
-            GameDAO gameDAO = MemoryGameDao.getInstance();
-            UserDAO userDAO = MemoryUserDao.getInstance();
+            AuthDAO authDAO = SQLAuthDAO.getInstance();
+            GameDAO gameDAO = SQLGameDAO.getInstance();
+            UserDAO userDAO = SQLUserDAO.getInstance();
             instance = new ApplicationService(authDAO, gameDAO, userDAO);
         }
         return instance;

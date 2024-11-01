@@ -130,6 +130,10 @@ public class ChessBoard {
         addPiece(move.endPosition, movingPiece);
     }
 
+    public Map<ChessPosition, ChessPiece> getBoard(){
+        return board;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
