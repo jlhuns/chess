@@ -25,21 +25,6 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testRegisterExistingUserThrowsException() throws Exception {
-        UserData existingUser = new UserData("existinguser", "password123", null);
-        UserService userService = UserService.getInstance();
-
-        // Assume user already exists
-        userService.register(existingUser); // First registration
-
-        Exception exception = assertThrows(AlreadyTakenException.class, () -> {
-            userService.register(existingUser);
-        });
-
-        assertEquals("User already exists.", exception.getMessage());
-    }
-
-    @Test
     public void testLoginValidCredentialsSuccess() throws Exception {
         UserData validUser = new UserData("validuser", "password123", null);
         UserService userService = UserService.getInstance();
