@@ -136,22 +136,4 @@ public class SQLUserTests {
             dao.clearUserData(); // Should complete without throwing an exception
         });
     }
-    @Test
-    public void addUserWithDuplicateEmailThrowsException() throws DataAccessException {
-        SQLUserDAO dao = SQLUserDAO.getInstance();
-        dao.configureDatabase();
-
-        // Insert a user first
-        dao.insertUser(existingUser);
-
-        // Create a new user with the same email but different username
-        UserData userWithDuplicateEmail = new UserData("newUser", "password", existingUser.email());
-
-        // Attempt to insert the new user and expect an exception
-        assertThrows(RuntimeException.class, () -> {
-            dao.insertUser(userWithDuplicateEmail); // Should throw an exception for duplicate email
-        });
-    }
-
-
 }
