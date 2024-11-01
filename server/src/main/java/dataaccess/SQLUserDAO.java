@@ -3,13 +3,9 @@ package dataaccess;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
-import javax.xml.crypto.Data;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import static org.mockito.internal.matchers.text.ValuePrinter.print;
 
 public class SQLUserDAO implements UserDAO {
     private static SQLUserDAO instance;
@@ -96,10 +92,10 @@ public class SQLUserDAO implements UserDAO {
         }
     }
 
-    public void storeUserPassword(String username, String clearTextPassword) throws DataAccessException {
-        String hashedPassword = BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
-        writeHashedPasswordToDatabase(username, hashedPassword);
-    }
+//    public void storeUserPassword(String username, String clearTextPassword) throws DataAccessException {
+//        String hashedPassword = BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
+//        writeHashedPasswordToDatabase(username, hashedPassword);
+//    }
 
     private void writeHashedPasswordToDatabase(String username, String hashedPassword) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
@@ -112,10 +108,10 @@ public class SQLUserDAO implements UserDAO {
         }
     }
 
-    public boolean verifyUser(String username, String providedClearTextPassword) throws DataAccessException {
-        String hashedPassword = readHashedPasswordFromDatabase(username);
-        return hashedPassword != null && BCrypt.checkpw(providedClearTextPassword, hashedPassword);
-    }
+//    public boolean verifyUser(String username, String providedClearTextPassword) throws DataAccessException {
+//        String hashedPassword = readHashedPasswordFromDatabase(username);
+//        return hashedPassword != null && BCrypt.checkpw(providedClearTextPassword, hashedPassword);
+//    }
 
     private String readHashedPasswordFromDatabase(String username) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
