@@ -1,8 +1,6 @@
 package server;
 
-import dataaccess.AlreadyTakenException;
-import dataaccess.BadRequestException;
-import dataaccess.UnauthorizedException;
+import dataaccess.*;
 import handler.game.CreateGameHandler;
 import handler.DBHandler;
 import handler.game.JoinGameHandler;
@@ -18,6 +16,16 @@ public class Server {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+
+        try {
+            SQLUserDAO.getInstance().configureDatabase();
+            SQLGameDAO.getInstance().configureDatabase();
+            SQLAuthDAO.getInstance().configureDatabase();
+            // Start your server or application logic here
+        } catch (DataAccessException e) {
+            throw new RuntimeException();
+        }
+
 
         // Register your endpoints and handle exceptions here.
 
