@@ -1,7 +1,6 @@
-package service;
+package dataaccess;
 
 import chess.ChessGame;
-import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -9,8 +8,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import passoff.model.TestAuthResult;
-import passoff.model.TestUser;
 import passoff.server.TestServerFacade;
 import server.Server;
 
