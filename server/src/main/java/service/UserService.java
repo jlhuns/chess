@@ -68,10 +68,8 @@ public class UserService {
     }
 
     public void logout(String authToken) throws DataAccessException, UnauthorizedException {
-        AuthData authData;
-        try{
-            authData = authDAO.getAuthData(authToken);
-        }catch (DataAccessException e) {
+        AuthData authData = authDAO.getAuthData(authToken);
+        if (authData == null) {
             throw new UnauthorizedException();
         }
         authDAO.deleteAuth(authData);
