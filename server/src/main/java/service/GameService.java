@@ -34,7 +34,7 @@ public class GameService {
 
     public List<GameData> listGames(String authToken) throws DataAccessException, UnauthorizedException {
         if (authDAO.getAuthData(authToken) == null) {
-            throw new DataAccessException("Error: unauthorized");  // Return 401 error
+            throw new UnauthorizedException();  // Return 401 error
         }
 
         try {
