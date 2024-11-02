@@ -1,8 +1,6 @@
 package dataaccess;
 
-import chess.ChessGame;
 import model.AuthData;
-import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -16,11 +14,8 @@ import java.sql.*;
 import static org.junit.jupiter.api.Assertions.*;
 public class SQLAuthTest {
 
-    private static UserData existingUser;
-    private static UserData existingUser2;
     private static TestServerFacade serverFacade;
     private static Server server;
-    private String existingAuth;
 
     @AfterAll
     static void stopServer() {
@@ -35,8 +30,6 @@ public class SQLAuthTest {
 
         serverFacade = new TestServerFacade("localhost", Integer.toString(port));
 
-        existingUser = new UserData("ExistingUser", "existingUserPassword", "eu@mail.com");
-        existingUser2 = new UserData("ExistingUser2", "existingUserPassword2", "eu2@mail.com");
 
     }
 

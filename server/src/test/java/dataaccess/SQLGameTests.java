@@ -1,7 +1,6 @@
 package dataaccess;
 
 import chess.ChessGame;
-import model.AuthData;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.AfterAll;
@@ -17,8 +16,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 public class SQLGameTests {
 
-    private static UserData existingUser;
-    private static UserData existingUser2;
     private static TestServerFacade serverFacade;
     private static Server server;
     private String existingAuth;
@@ -36,8 +33,6 @@ public class SQLGameTests {
 
         serverFacade = new TestServerFacade("localhost", Integer.toString(port));
 
-        existingUser = new UserData("ExistingUser", "existingUserPassword", "eu@mail.com");
-        existingUser2 = new UserData("ExistingUser2", "existingUserPassword2", "eu2@mail.com");
 
     }
 
@@ -65,8 +60,8 @@ public class SQLGameTests {
         SQLGameDAO dao = SQLGameDAO.getInstance();
         dao.configureDatabase();
         // Create a sample user
-        ChessGame new_game = new ChessGame();
-        GameData game = new GameData(1, "test1","test2", "Game1", new_game);
+        ChessGame newGame = new ChessGame();
+        GameData game = new GameData(1, "test1","test2", "Game1", newGame);
         // Insert the user
         dao.insertGame(game);
 

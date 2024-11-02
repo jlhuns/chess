@@ -1,8 +1,5 @@
 package dataaccess;
 
-import chess.ChessGame;
-import model.AuthData;
-import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -20,7 +17,6 @@ public class SQLUserTests {
     private static UserData existingUser2;
     private static TestServerFacade serverFacade;
     private static Server server;
-    private String existingAuth;
 
     @AfterAll
     static void stopServer() {
