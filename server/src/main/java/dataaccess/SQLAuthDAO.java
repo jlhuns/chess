@@ -79,17 +79,18 @@ public class SQLAuthDAO implements AuthDAO {
         }
     }
 
-    private final String[] createStatements = {
-            """
+
+
+    public void configureDatabase() throws DataAccessException {
+        DatabaseManager.createDatabase();
+        String[] createStatements = {
+                """
             CREATE TABLE if NOT EXISTS auth (
                 username VARCHAR(255) NOT NULL,
                 authToken VARCHAR(255) NOT NULL,
                 PRIMARY KEY (authToken)
             )"""
-    };
-
-    public void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
+        };
         try (Connection connection = DatabaseManager.getConnection();){
             for(String statement: createStatements) {
                 try (var preparedStatement = connection.prepareStatement(statement)) {

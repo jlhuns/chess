@@ -69,17 +69,17 @@ public class SQLUserDAO implements UserDAO {
         }
     }
 
-    private final String[] createStatements = {
-            """
+
+    public void configureDatabase() throws DataAccessException {
+        String[] createStatements = {
+                """
             CREATE TABLE if NOT EXISTS user (
                 username VARCHAR(255) NOT NULL,
                 password VARCHAR(255) NOT NULL,
                 email VARCHAR(255),
                 PRIMARY KEY (username)
             )"""
-    };
-
-    public void configureDatabase() throws DataAccessException {
+        };
         DatabaseManager.createDatabase();
         try (Connection connection = DatabaseManager.getConnection();) {
             for (String statement : createStatements) {
@@ -90,33 +90,6 @@ public class SQLUserDAO implements UserDAO {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-    }
-
-
-    private void writeHashedPasswordToDatabase(String username, String hashedPassword) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            var stmt = conn.prepareStatement("UPDATE user SET password = ? WHERE username = ?");
-            stmt.setString(1, hashedPassword);
-            stmt.setString(2, username);
-            stmt.executeUpdate();
-        }catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String readHashedPasswordFromDatabase(String username) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            var stmt = conn.prepareStatement("SELECT password FROM user WHERE username = ?");
-            stmt.setString(1, username);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getString("password");
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return null; // No user found
     }
 }
 

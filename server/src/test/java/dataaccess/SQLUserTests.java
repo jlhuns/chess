@@ -26,8 +26,7 @@ public class SQLUserTests {
     @BeforeAll
     public static void init() {
         server = new Server();
-        var port = server.run(0);
-        System.out.println("Started test HTTP server on " + port);
+        var port = server.run(3);
 
         serverFacade = new TestServerFacade("localhost", Integer.toString(port));
 

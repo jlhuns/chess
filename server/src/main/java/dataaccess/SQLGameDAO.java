@@ -38,9 +38,10 @@ public class SQLGameDAO implements GameDAO {
 
     @Override
     public int insertGame(GameData game) throws DataAccessException {
+        String pstmt = "INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, chessGame) VALUES(?, ?, ?, ?, ?)";
         try(var conn = DatabaseManager.getConnection()){
             var json = gson.toJson(game.game().getBoard());
-            try (var statement = conn.prepareStatement("INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, chessGame) VALUES(?, ?, ?, ?, ?)")) {
+            try (var statement = conn.prepareStatement(pstmt)) {
                 statement.setInt(1, game.gameID());
                 statement.setString(2, game.whiteUsername());
                 statement.setString(3, game.blackUsername());
@@ -86,7 +87,9 @@ public class SQLGameDAO implements GameDAO {
                 statement.setString(4, json);
                 statement.setInt(5, game.gameID());
                 int rowsUpdated = statement.executeUpdate();
-                if (rowsUpdated == 0) throw new DataAccessException("Item requested to be updated not found");
+                if (rowsUpdated == 0) {
+                    throw new DataAccessException("Item requested to be updated not found");
+                }
             }
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
@@ -123,8 +126,10 @@ public class SQLGameDAO implements GameDAO {
         }
     }
 
-    private final String[] createStatements = {
-            """
+
+    public void configureDatabase() throws DataAccessException {
+        String[] createStatements = {
+                """
             CREATE TABLE if NOT EXISTS game (
                 gameID INT NOT NULL,
                 whiteUsername VARCHAR(255),
@@ -133,9 +138,7 @@ public class SQLGameDAO implements GameDAO {
                 chessGame TEXT,
                 PRIMARY KEY (gameID)
             )"""
-    };
-
-    public void configureDatabase() throws DataAccessException {
+        };
         DatabaseManager.createDatabase();
         try (Connection connection = DatabaseManager.getConnection();){
             for(String statement: createStatements) {

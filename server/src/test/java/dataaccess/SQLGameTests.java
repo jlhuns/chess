@@ -28,8 +28,7 @@ public class SQLGameTests {
     @BeforeAll
     public static void init() {
         server = new Server();
-        var port = server.run(0);
-        System.out.println("Started test HTTP server on " + port);
+        var port = server.run(2);
 
         serverFacade = new TestServerFacade("localhost", Integer.toString(port));
 
@@ -84,8 +83,8 @@ public class SQLGameTests {
     public void getGame() throws Exception {
         SQLGameDAO dao = SQLGameDAO.getInstance();
         dao.configureDatabase();
-        ChessGame new_game = new ChessGame();
-        GameData game = new GameData(3, "test1","test2", "Game2", new_game);
+        ChessGame newGame = new ChessGame();
+        GameData game = new GameData(3, "test1","test2", "Game2", newGame);
         // Insert the user
         dao.insertGame(game);
         GameData result = dao.getGame(3);
