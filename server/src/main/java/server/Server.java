@@ -21,7 +21,6 @@ public class Server {
             SQLUserDAO.getInstance().configureDatabase();
             SQLGameDAO.getInstance().configureDatabase();
             SQLAuthDAO.getInstance().configureDatabase();
-            // Start your server or application logic here
         } catch (DataAccessException e) {
             throw new RuntimeException();
         }
