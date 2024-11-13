@@ -10,7 +10,7 @@ public class PreloginREPL {
     ServerFacade server;
     public PreloginREPL(ServerFacade server) {
         this.server = server;
-//      postloginREPL = new PostloginREPL(server);
+        PostloginREPL postloginREPL = new PostloginREPL(server);
     }
 
     public void run(){
@@ -29,7 +29,8 @@ public class PreloginREPL {
                     isLoggedIn = true;
                     break;
                 case "register":
-                    isLoggedIn = true;
+                    server.register(input[1], input[2], input[3]);
+//                    isLoggedIn = true;
                     break;
                 default:
                     out.println("Command not recognized, please try again");
