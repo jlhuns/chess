@@ -73,11 +73,17 @@ public class GameService {
     public boolean joinGame(String authToken, String playerColor, int gameID) throws DataAccessException, UnauthorizedException, BadRequestException {
         AuthData authData = authDAO.getAuthData(authToken);
         GameData gameData = gameDAO.getGame(gameID);
+
+
         if(gameData == null) {
             throw new BadRequestException("Error: bad request");
         }
         if (authData == null) {
             throw new UnauthorizedException(); // Return 401 error
+        }
+
+        if(playerColor == null || playerColor.isEmpty()) {
+            return true;
         }
 
         String whiteUser = gameData.whiteUsername();

@@ -1,6 +1,5 @@
 package client;
 
-import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
 import model.ListGamesResponse;
@@ -9,7 +8,6 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -74,7 +72,12 @@ public class HTTPHandler {
         return gamesResponse.games();
     }
     public boolean joinGame(int gameID, String teamcolor){
-        var body = Map.of("playerColor", teamcolor, "gameID", gameID);
+        Map body;
+        if (teamcolor != null) {
+            body = Map.of("playerColor", teamcolor, "gameID", gameID);
+        } else {
+            body = Map.of("gameID", gameID);
+        }
         var jsonBody = new Gson().toJson(body);
         var resp = request("PUT", "/game", jsonBody);
         return !resp.containsKey("Error");

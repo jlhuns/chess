@@ -21,7 +21,7 @@ public class PostloginREPL {
 
     public void run(){
         boolean isLoggedIn = true;
-        while(isLoggedIn) {
+        while(isLoggedIn & !isInGame) {
             String[] input = getUserInput();
             switch(input[0]){
                 case "quit":
@@ -50,7 +50,10 @@ public class PostloginREPL {
                     printGames();
                     break;
                 case "join":
-                    joinHandler(input);
+                    joinHandler(input, false);
+                    break;
+                case "observe":
+                    joinHandler(input, true);
                     break;
                 default:
                     out.println("Command not recognized, please try again");
@@ -63,11 +66,19 @@ public class PostloginREPL {
             prelogin.run();
         }
     }
-    private void joinHandler(String[] input){
-        if(input.length != 3 || !input[1].matches("\\d") || !input[2].toUpperCase().matches("WHITE|BLACK")) {
-            out.println("Please provide a game ID and color choice");
-            printJoinGame();
-            return;
+    private void joinHandler(String[] input, boolean observer){
+        if(observer) {
+            if(input.length != 2 || !input[1].matches("\\d")) {
+                out.println("Please provide a game ID");
+                printJoinGame();
+                return;
+            }
+        }else{
+            if(input.length != 3 || !input[1].matches("\\d") || !input[2].toUpperCase().matches("WHITE|BLACK")) {
+                out.println("Please provide a game ID and color choice");
+                printJoinGame();
+                return;
+            }
         }
         int gameNumber = Integer.parseInt(input[1]);
         if(games.isEmpty() || games.size() <= gameNumber) {
@@ -82,10 +93,13 @@ public class PostloginREPL {
                 return;
             }
         }
+        String color = null;
         GameData joinGame = games.get(gameNumber);
-        ChessGame.TeamColor color = input[2].equalsIgnoreCase("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+        if(!observer){
+            color = input[2].toUpperCase();
+        }
         //join game api handler
-        if(server.joinGame(joinGame.gameID(), input[2].toUpperCase())){
+        if(server.joinGame(joinGame.gameID(), color)){
             out.println("You have joined the game");
             isInGame = true;
 //            server, joinGame, color
