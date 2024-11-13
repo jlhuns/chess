@@ -34,6 +34,9 @@ public class ServerFacade {
     public List<GameData> listGames(){
         return handler.listGames();
     }
+    public boolean joinGame(int gameName, String teamColor){
+        return handler.joinGame(gameName, teamColor);
+    }
 
     public void setAuthToken(String authToken) {
         this.authToken = authToken;

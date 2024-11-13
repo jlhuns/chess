@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
 import model.ListGamesResponse;
@@ -72,6 +73,12 @@ public class HTTPHandler {
         ListGamesResponse gamesResponse = new Gson().fromJson(response, ListGamesResponse.class);
         return gamesResponse.games();
     }
+    public boolean joinGame(int gameID, String teamcolor){
+        var body = Map.of("playerColor", teamcolor, "gameID", gameID);
+        var jsonBody = new Gson().toJson(body);
+        var resp = request("PUT", "/game", jsonBody);
+        return !resp.containsKey("Error");
+    }
 
     private Map request(String method, String endpoint, String jsonBody) {
         Map respMap;
@@ -87,7 +94,7 @@ public class HTTPHandler {
             }
 
 
-            try (InputStream respBody = http.getInputStream()) {
+                try (InputStream respBody = http.getInputStream()) {
                 InputStreamReader inputStreamReader = new InputStreamReader(respBody);
                 respMap = new Gson().fromJson(inputStreamReader, Map.class);
             }
