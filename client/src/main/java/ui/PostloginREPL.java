@@ -2,6 +2,7 @@ package ui;
 
 import client.ServerFacade;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import static java.lang.System.out;
@@ -36,7 +37,14 @@ public class PostloginREPL {
                     }else{
                         out.println("Game creation failed");
                     }
-
+                    break;
+                case "list":
+                    if(server.listGames() != null){
+                        out.println("got list of games");
+                    }else{
+                        out.println("got no games");
+                    }
+                    break;
             }
         }
         if(!isLoggedIn) {
@@ -76,5 +84,10 @@ public class PostloginREPL {
     }
     private void printObserve(){
         out.println("observe <ID> - a game");
+    }
+
+    private void getGames(){
+//        games = new ArrayList();
+
     }
 }

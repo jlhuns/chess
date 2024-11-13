@@ -1,5 +1,9 @@
 package client;
 
+import model.GameData;
+
+import java.util.List;
+
 public class ServerFacade {
     private final String serverDomain;
     HTTPHandler handler;
@@ -22,10 +26,13 @@ public class ServerFacade {
         return handler.login(username, password);
     }
     public boolean logout(){
-        return handler.logout();
+        return handler.logout(this.authToken);
     }
     public int createGame(String gameName){
         return handler.createGame(gameName);
+    }
+    public List<GameData> listGames(){
+        return handler.listGames();
     }
 
     public void setAuthToken(String authToken) {

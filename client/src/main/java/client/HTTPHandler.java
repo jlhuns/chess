@@ -1,13 +1,15 @@
 package client;
 
 import com.google.gson.Gson;
+import model.GameData;
+import model.ListGamesResponse;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -41,7 +43,11 @@ public class HTTPHandler {
         facade.setAuthToken((String) resp.get("authToken"));
         return true;
     }
-    public boolean logout() {
+    public boolean logout(String authToken) {
+        var resp = request("DELETE", "/session", null);
+        if (resp.containsKey("Error")) {
+            return false;
+        }
         facade.setAuthToken(null);
         return true;
     }
@@ -55,6 +61,16 @@ public class HTTPHandler {
         }
         double gameID = (double) resp.get("gameID");
         return (int) gameID;
+    }
+
+    public List<GameData> listGames() {
+        String response = stringRequest("GET", "/game", null);
+        // Check if the response is an error
+        if (response.contains("Error")) {
+            return null;
+        }
+        ListGamesResponse gamesResponse = new Gson().fromJson(response, ListGamesResponse.class);
+        return gamesResponse.games();
     }
 
     private Map request(String method, String endpoint, String jsonBody) {
@@ -101,4 +117,32 @@ public class HTTPHandler {
         }
         return http;
     }
+    private String stringRequest(String method, String endpoint, String jsonBody) {
+        StringBuilder response = new StringBuilder();
+        try {
+            HttpURLConnection http = makeConnection(method, endpoint, jsonBody);
+
+            // Check for 401 Unauthorized
+            if (http.getResponseCode() == 401) {
+                return "Error: 401 Unauthorized";
+            }
+
+            // Read response body
+            try (InputStream respBody = http.getInputStream();
+                 InputStreamReader inputStreamReader = new InputStreamReader(respBody);
+                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
+
+                String line;
+                while ((line = bufferedReader.readLine()) != null) {
+                    response.append(line);
+                }
+            }
+
+        } catch (URISyntaxException | IOException e) {
+            return "Error: " + e.getMessage();
+        }
+
+        return response.toString();
+    }
+
 }
