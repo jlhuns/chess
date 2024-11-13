@@ -21,6 +21,12 @@ public class ServerFacade {
     public boolean login(String username, String password){
         return handler.login(username, password);
     }
+    public boolean logout(){
+        return handler.logout();
+    }
+    public int createGame(String gameName){
+        return handler.createGame(gameName);
+    }
 
     public void setAuthToken(String authToken) {
         this.authToken = authToken;

@@ -34,12 +34,27 @@ public class HTTPHandler {
     public boolean login(String username, String password) {
         var body = Map.of("username", username, "password", password);
         var jsonBody = new Gson().toJson(body);
-        var resp = request("POST", "/user", jsonBody);
+        var resp = request("POST", "/session", jsonBody);
         if (resp.containsKey("Error")) {
             return false;
         }
         facade.setAuthToken((String) resp.get("authToken"));
         return true;
+    }
+    public boolean logout() {
+        facade.setAuthToken(null);
+        return true;
+    }
+
+    public int createGame(String gameName){
+        var body = Map.of("gameName", gameName);
+        var jsonBody = new Gson().toJson(body);
+        var resp = request("POST", "/game", jsonBody);
+        if (resp.containsKey("Error")) {
+            return -1;
+        }
+        double gameID = (double) resp.get("gameID");
+        return (int) gameID;
     }
 
     private Map request(String method, String endpoint, String jsonBody) {

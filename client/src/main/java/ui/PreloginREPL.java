@@ -8,9 +8,10 @@ import static ui.EscapeSequences.*;
 
 public class PreloginREPL {
     ServerFacade server;
+    PostloginREPL postloginREPL;
     public PreloginREPL(ServerFacade server) {
         this.server = server;
-        PostloginREPL postloginREPL = new PostloginREPL(server);
+        postloginREPL = new PostloginREPL(server);
     }
 
     public void run(){
@@ -26,18 +27,42 @@ public class PreloginREPL {
                     printHelpMenu();
                     break;
                 case "login":
-                    isLoggedIn = true;
-                    break;
+                    if (input.length != 3) {
+                        out.println("Please provide a username and password");
+                        printLogin();
+                        break;
+                    }
+                    if (server.login(input[1], input[2])) {
+                        out.println("You are now logged in");
+                        isLoggedIn = true;
+                        break;
+                    } else {
+                        out.println("Username or password incorrect, please try again");
+                        printLogin();
+                        break;
+                    }
                 case "register":
-                    server.register(input[1], input[2], input[3]);
-//                    isLoggedIn = true;
-                    break;
+                    if (input.length != 4) {
+                        out.println("Please provide a username, password, and email");
+                        printRegister();
+                        break;
+                    }
+                    if (server.register(input[1], input[2], input[3])) {
+                        out.println("You are now registered and logged in");
+                        isLoggedIn = true;
+                        break;
+                    } else {
+                        out.println("Username already in use, please choose a new one");
+                        printRegister();
+                        break;
+                    }
                 default:
                     out.println("Command not recognized, please try again");
                     printHelpMenu();
                     break;
             }
         }
+        postloginREPL.run();
     }
 
 
