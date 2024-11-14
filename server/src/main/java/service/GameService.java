@@ -91,7 +91,7 @@ public class GameService {
         }
 
         if(playerColor == null || playerColor.isEmpty()) {
-            return true;
+            throw new BadRequestException("Error: bad request");
         }
 
         String whiteUser = gameData.whiteUsername();

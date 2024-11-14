@@ -232,7 +232,7 @@ public class StandardAPITests {
         TestResult joinResult = serverFacade.joinPlayer(joinRequest, existingAuth);
 
         //check
-        assertHttpOk(joinResult);
+        assertHttpBadRequest(joinResult);
     }
 
     @Test
