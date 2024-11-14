@@ -49,7 +49,7 @@ public class GamePlayREPL {
                     isInGame = false;
                     break;
                 default:
-                    out.println("Will implement more commands in phase 6 - for now just quit");
+                    out.println("Will implement more commands in phase 6 - for now just quit or leave");
                     break;
             }
         }

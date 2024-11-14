@@ -94,6 +94,10 @@ public class GameService {
             throw new BadRequestException("Error: bad request");
         }
 
+        if(playerColor == "obs"){
+            return true;
+        }
+
         String whiteUser = gameData.whiteUsername();
         String blackUser = gameData.blackUsername();
         String intendedColor;

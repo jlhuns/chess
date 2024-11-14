@@ -94,7 +94,7 @@ public class PostloginREPL {
                 return;
             }
         }
-        String color = null;
+        String color = "obs";
         GameData joinGame = games.get(gameNumber);
         if(!observer){
             color = input[2].toUpperCase();

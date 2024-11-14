@@ -55,7 +55,12 @@ public class BoardPrint {
                 }
                 // Set grey backgrounds for the chessboard squares
                 else {
-                    String bgColor = (row + col) % 2 == 0 ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_DARK_GREY;
+                    String bgColor;
+                    if(color == ChessGame.TeamColor.WHITE) {
+                        bgColor = (row + col) % 2 == 0 ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_DARK_GREY;
+                    }else{
+                        bgColor = (row + col) % 2 == 0 ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_LIGHT_GREY;
+                    }
                     output.append(bgColor);  // Set the background color for chessboard squares
                     ChessPiece chessPiece = game.getBoard().getPiece(new ChessPosition(row, col));
                     output.append(chessPiece != null ? getPieceSymbol(chessPiece) : EMPTY);

@@ -167,11 +167,14 @@ class ChessBoardDeserializer implements JsonDeserializer<ChessBoard> {
         }
 
         JsonObject boardObject = json.getAsJsonObject();
+        JsonObject piecesObject = null;
 
         if (boardObject.has("board")) {
-            boardObject.remove("board");
+            piecesObject = boardObject.getAsJsonObject("board");
         }
-
+        if(piecesObject != null){
+            boardObject = piecesObject;
+        }
         for (Map.Entry<String, JsonElement> entry : boardObject.entrySet()) {
             String positionKey = entry.getKey();
             if(positionKey.equals("board")) {
