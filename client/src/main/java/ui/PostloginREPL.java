@@ -20,6 +20,7 @@ public class PostloginREPL {
     }
 
     public void run(){
+        getGames();
         boolean isLoggedIn = true;
         while(isLoggedIn & !isInGame) {
             String[] input = getUserInput();
@@ -68,13 +69,13 @@ public class PostloginREPL {
     }
     private void joinHandler(String[] input, boolean observer){
         if(observer) {
-            if(input.length != 2 || !input[1].matches("\\d")) {
+            if(input.length != 2 || !input[1].matches("\\d+")) {
                 out.println("Please provide a game ID");
                 printJoinGame();
                 return;
             }
         }else{
-            if(input.length != 3 || !input[1].matches("\\d") || !input[2].toUpperCase().matches("WHITE|BLACK")) {
+            if(input.length != 3 || !input[1].matches("\\d+") || !input[2].toUpperCase().matches("WHITE|BLACK")) {
                 out.println("Please provide a game ID and color choice");
                 printJoinGame();
                 return;
@@ -98,14 +99,17 @@ public class PostloginREPL {
         if(!observer){
             color = input[2].toUpperCase();
         }
-
-        ChessGame.TeamColor teamColor = ChessGame.TeamColor.valueOf(color);
         //join game api handler
         if(server.joinGame(joinGame.gameID(), color)){
             out.println("You have joined the game");
             isInGame = true;
-//            server, joinGame, color
-            GamePlayREPL gameplayREPL = new GamePlayREPL(server, joinGame, teamColor);
+            GamePlayREPL gameplayREPL;
+            if(!observer){
+                ChessGame.TeamColor teamColor = ChessGame.TeamColor.valueOf(color);
+                gameplayREPL = new GamePlayREPL(server, joinGame, teamColor);
+            }else{
+                gameplayREPL = new GamePlayREPL(server, joinGame);
+            }
             gameplayREPL.run();
         } else {
             out.println("Game does not exist or color taken");

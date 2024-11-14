@@ -14,6 +14,7 @@ public class GamePlayREPL {
     int gameID;
     public static ChessGame.TeamColor color;
     BoardPrint boardPrint;
+    PostloginREPL postloginREPL;
 
     public GamePlayREPL(ServerFacade server, GameData gameData, ChessGame.TeamColor color) {
         this.server = server;
@@ -21,6 +22,11 @@ public class GamePlayREPL {
         this.color = color;
         this.gameID = gameData.gameID();
         this.boardPrint = new BoardPrint(game);
+        this.postloginREPL = new PostloginREPL(server);
+
+    }
+    public GamePlayREPL(ServerFacade server, GameData gameData) {
+        this(server, gameData, null);  // Or any default color, or null if acceptable
     }
 
     public void run(){
@@ -31,6 +37,7 @@ public class GamePlayREPL {
             boardPrint.printBoard(ChessGame.TeamColor.BLACK);
         }else{
             boardPrint.printBoard(ChessGame.TeamColor.WHITE);
+            out.println("\n");
             boardPrint.printBoard(ChessGame.TeamColor.BLACK);
         }
         while(isInGame){
@@ -38,10 +45,16 @@ public class GamePlayREPL {
             switch(input[0]){
                 case "quit":
                     return;
+                case "leave":
+                    isInGame = false;
+                    break;
                 default:
                     out.println("Will implement more commands in phase 6 - for now just quit");
                     break;
             }
+        }
+        if(!isInGame){
+            postloginREPL.run();
         }
     }
 

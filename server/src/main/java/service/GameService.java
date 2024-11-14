@@ -16,7 +16,7 @@ public class GameService {
     private final AuthDAO authDAO;  // For authentication validation
     private final GameDAO gameDAO;  // For retrieving games
 
-    private int currentGameId = 0;
+    private int currentGameId;
 
     public GameService(AuthDAO authDAO, GameDAO gameDAO) {
         this.authDAO = authDAO;
@@ -53,15 +53,23 @@ public class GameService {
         if (gameName == null || gameName.isEmpty()) {
             throw new DataAccessException("Error: bad request");  // Return 400 error
         }
+        List<GameData> allGames = gameDAO.getAllGames();
+        int maxGameId = allGames.stream()
+                .mapToInt(GameData::gameID)
+                .max()
+                .orElse(0); // If no games exist, max is 0
+
+        // The new game ID will be the highest existing game ID + 1
+        int newGameId = maxGameId + 1;
+
 
         try {
-            currentGameId++;
             // Create a new GameData object
             ChessGame game = new ChessGame();
             ChessBoard board = new ChessBoard();
             board.resetBoard();
             game.setBoard(board);
-            GameData gameData = new GameData(currentGameId, null, null,gameName, game);
+            GameData gameData = new GameData(newGameId, null, null,gameName, game);
 
 
             return gameDAO.insertGame(gameData);  // Return the generated game ID

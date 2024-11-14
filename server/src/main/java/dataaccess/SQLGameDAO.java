@@ -162,15 +162,26 @@ class ChessBoardDeserializer implements JsonDeserializer<ChessBoard> {
     @Override
     public ChessBoard deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         ChessBoard chessBoard = new ChessBoard();
+        if (json == null || !json.isJsonObject()) {
+            return chessBoard;  // Return an empty board if the JSON is null or malformed
+        }
+
         JsonObject boardObject = json.getAsJsonObject();
 
-        for (Map.Entry<String, JsonElement> entry : boardObject.entrySet()) {
-            // Parse the key string into a ChessPosition manually
-            String positionKey = entry.getKey();
-            ChessPosition position = parsePositionKey(positionKey);
+        if (boardObject.has("board")) {
+            boardObject.remove("board");
+        }
 
-            // Deserialize the value (piece details)
+        for (Map.Entry<String, JsonElement> entry : boardObject.entrySet()) {
+            String positionKey = entry.getKey();
+            if(positionKey.equals("board")) {
+                continue;
+            }
+            ChessPosition position = parsePositionKey(positionKey);  // Safely parse the position
+
             JsonObject pieceObject = entry.getValue().getAsJsonObject();
+            if (pieceObject == null) continue;  // Handle missing pieces
+
             String teamColor = pieceObject.get("teamColor").getAsString();
             String pieceType = pieceObject.get("pieceType").getAsString();
 
@@ -184,12 +195,10 @@ class ChessBoardDeserializer implements JsonDeserializer<ChessBoard> {
                 case "KNIGHT" -> type = ChessPiece.PieceType.KNIGHT;
                 case "ROOK" -> type = ChessPiece.PieceType.ROOK;
                 case "PAWN" -> type = ChessPiece.PieceType.PAWN;
-                default -> throw new IllegalArgumentException("Invalid piece type: " + pieceType);
+                default -> throw new JsonParseException("Invalid piece type: " + pieceType);
             }
 
             ChessPiece piece = new ChessPiece(color, type);
-
-            // Add the piece to the chessboard
             chessBoard.addPiece(position, piece);
         }
 
@@ -197,10 +206,15 @@ class ChessBoardDeserializer implements JsonDeserializer<ChessBoard> {
     }
 
     private ChessPosition parsePositionKey(String positionKey) {
-        // Strip braces and split by comma to get row and col values
+        // Safely parse the position string by removing curly braces and splitting the coordinates
         String[] parts = positionKey.replace("{", "").replace("}", "").split(",");
-        int row = Integer.parseInt(parts[0].split(":")[1]);
-        int col = Integer.parseInt(parts[1].split(":")[1]);
-        return new ChessPosition(row, col);
+
+        try {
+            int row = Integer.parseInt(parts[0].split(":")[1]);
+            int col = Integer.parseInt(parts[1].split(":")[1]);
+            return new ChessPosition(row, col);
+        } catch (NumberFormatException e) {
+            throw new JsonParseException("Invalid position values in key: " + positionKey, e);
+        }
     }
 }

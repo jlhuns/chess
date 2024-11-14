@@ -1,5 +1,6 @@
 import chess.ChessGame;
 import client.ServerFacade;
+import spark.Spark;
 import ui.PreloginREPL;
 
 
@@ -10,9 +11,12 @@ public class Main {
         ServerFacade server = new ServerFacade();
         PreloginREPL prelogin = new PreloginREPL(server);
         prelogin.run();
-
         out.println("Exited");
 
+    }
+    public void stop() {
+        Spark.stop();
+        Spark.awaitStop();
     }
 }
 
