@@ -95,7 +95,6 @@ public class SQLGameTests {
             preparedStatement.setInt(1, game.gameID());
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            // Check that the result set is not empty, which confirms the user was inserted
             assertTrue(resultSet.next(), "game should be present in the database after insertion.");
             assertEquals(result.gameID(), resultSet.getInt("gameID"));
 

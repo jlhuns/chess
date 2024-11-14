@@ -150,6 +150,10 @@ public class PostloginREPL {
         games = server.listGames();
     }
     private void printGames(){
+        if(games == null || games.size() <= 0) {
+            out.println("No games to join");
+            return;
+        }
         for(int i = 0; i < games.size(); i++){
             GameData game = games.get(i);
             String whiteUser = game.whiteUsername() != null? game.whiteUsername(): "open";

@@ -4,6 +4,10 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 
+import java.lang.reflect.Array;
+
+import static java.lang.Math.abs;
+import static java.lang.System.out;
 import static ui.EscapeSequences.*;
 
 public class BoardPrint {
@@ -19,6 +23,7 @@ public class BoardPrint {
     public void printBoard(ChessGame.TeamColor color) {
         StringBuilder output = new StringBuilder();
         output.append(SET_TEXT_BOLD);
+        String[] letters = new String[]{"0", "a", "b", "c", "d", "e", "f", "g", "h", "0"};
 
         // Determine board orientation based on team color
         int startRow = color == ChessGame.TeamColor.WHITE ? 0 : 9;
@@ -27,17 +32,44 @@ public class BoardPrint {
         for (int i = 0; i <= 9; i++) {
             int row = startRow + i * rowIncrement;
             for (int col = 0; col <= 9; col++) {
-                ChessPiece chessPiece = game.getBoard().getPiece(new ChessPosition(row, col));
-                String bgColor = (row + col) % 2 == 0 ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_DARK_GREY;
-                output.append(bgColor); // Set the background color
-                output.append(chessPiece != null ? getPieceSymbol(chessPiece) : EMPTY);
-                output.append(RESET_BG_COLOR);
+
+                // Set background color for edges (outside the chessboard)
+                if (col == 0 || col == 9) {
+                    output.append(SET_BG_COLOR_BLACK);
+                    if (i == 0 || i == 9) {
+                        // corners
+                        output.append(EMPTY);
+                    } else {
+                        // numbers on the edges
+                        output.append(" ").append(abs(row-9)).append(EM_SPACE);
+                    }
+                }
+                // Set letters for the top and bottom borders
+                else if (i == 0 || i == 9) {
+                    output.append(SET_BG_COLOR_BLACK);
+                    if (color == ChessGame.TeamColor.WHITE) {
+                        output.append(" ").append(letters[col]).append(EM_SPACE);  // From a-h
+                    } else {
+                        output.append(" ").append(letters[9 - col]).append(EM_SPACE);  // From h-a
+                    }
+                }
+                // Set grey backgrounds for the chessboard squares
+                else {
+                    String bgColor = (row + col) % 2 == 0 ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_DARK_GREY;
+                    output.append(bgColor);  // Set the background color for chessboard squares
+                    ChessPiece chessPiece = game.getBoard().getPiece(new ChessPosition(row, col));
+                    output.append(chessPiece != null ? getPieceSymbol(chessPiece) : EMPTY);
+                    output.append(RESET_BG_COLOR);  // Reset the background color
+                }
+
+                output.append(RESET_BG_COLOR);  // Reset background color after every cell
             }
             output.append("\n");
         }
 
+
         output.append(RESET_TEXT_BOLD_FAINT);  // Reset formatting at the end
-        System.out.print(output);
+        out.print(output);
     }
 
     private String getPieceSymbol(ChessPiece chessPiece) {

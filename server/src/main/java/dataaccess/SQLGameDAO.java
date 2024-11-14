@@ -4,10 +4,10 @@ import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.*;
 import model.GameData;
 
+import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -57,6 +57,9 @@ public class SQLGameDAO implements GameDAO {
 
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(ChessBoard.class, new ChessBoardDeserializer())
+                .create();
         try(var conn = DatabaseManager.getConnection()){
             try(var statement = conn.prepareStatement("SELECT * FROM game WHERE gameID = ?")) {
                 statement.setInt(1, gameID);
@@ -65,7 +68,7 @@ public class SQLGameDAO implements GameDAO {
                         var whiteUsername = resultSet.getString("whiteUsername");
                         var blackUsername = resultSet.getString("blackUsername");
                         var gameName = resultSet.getString("gameName");
-                        var chessGame = deserializeGame(resultSet);
+                        ChessGame chessGame = gson.fromJson(resultSet.getString("chessGame"), ChessGame.class);
                         return new GameData(gameID, whiteUsername, blackUsername, gameName, chessGame);
                     }
                 }
@@ -98,16 +101,20 @@ public class SQLGameDAO implements GameDAO {
 
     @Override
     public List<GameData> getAllGames() throws DataAccessException {
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(ChessBoard.class, new ChessBoardDeserializer())
+                .create();
         List<GameData> games = new ArrayList<>();
         try (var conn = DatabaseManager.getConnection();
              var statement = conn.prepareStatement("SELECT * FROM game");
              var resultSet = statement.executeQuery()) {
+
             while (resultSet.next()) {
                 int gameID = resultSet.getInt("gameID");
                 String whiteUsername = resultSet.getString("whiteUsername");
                 String blackUsername = resultSet.getString("blackUsername");
                 String gameName = resultSet.getString("gameName");
-                ChessGame chessGame = deserializeGame(resultSet);
+                ChessGame chessGame = gson.fromJson(resultSet.getString("chessGame"), ChessGame.class);
                 games.add(new GameData(gameID, whiteUsername, blackUsername, gameName, chessGame));
             }
         }  catch (SQLException e) {
@@ -121,11 +128,10 @@ public class SQLGameDAO implements GameDAO {
         try (var conn = DatabaseManager.getConnection();
              var statement = conn.prepareStatement("TRUNCATE game")) {
             statement.executeUpdate();
-        }  catch (SQLException e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
-
 
     public void configureDatabase() throws DataAccessException {
         String[] createStatements = {
@@ -151,26 +157,50 @@ public class SQLGameDAO implements GameDAO {
             throw new RuntimeException(e);
         }
     }
+}
+class ChessBoardDeserializer implements JsonDeserializer<ChessBoard> {
+    @Override
+    public ChessBoard deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+        ChessBoard chessBoard = new ChessBoard();
+        JsonObject boardObject = json.getAsJsonObject();
 
-    private ChessGame deserializeGame(ResultSet resultSet) throws SQLException {
-        // Get the JSON string from the ResultSet
-        String json = resultSet.getString("chessGame");
+        for (Map.Entry<String, JsonElement> entry : boardObject.entrySet()) {
+            // Parse the key string into a ChessPosition manually
+            String positionKey = entry.getKey();
+            ChessPosition position = parsePositionKey(positionKey);
 
-        // Deserialize JSON back into ChessGame object
-        ChessGame chessGame = new Gson().fromJson(json, ChessGame.class);
+            // Deserialize the value (piece details)
+            JsonObject pieceObject = entry.getValue().getAsJsonObject();
+            String teamColor = pieceObject.get("teamColor").getAsString();
+            String pieceType = pieceObject.get("pieceType").getAsString();
 
-        // Accessing ChessBoard from ChessGame
-        ChessBoard board = chessGame.getBoard();
+            ChessGame.TeamColor color = teamColor.equals("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
 
-        // Example: Iterate through positions on the board
-        for (Map.Entry<ChessPosition, ChessPiece> entry : board.getBoard().entrySet()) {
-            ChessPosition position = entry.getKey();
-            int row = position.getRow();  // Extract row as an integer
-            int col = position.getColumn();  // Extract column as an integer
+            ChessPiece.PieceType type;
+            switch (pieceType) {
+                case "KING" -> type = ChessPiece.PieceType.KING;
+                case "QUEEN" -> type = ChessPiece.PieceType.QUEEN;
+                case "BISHOP" -> type = ChessPiece.PieceType.BISHOP;
+                case "KNIGHT" -> type = ChessPiece.PieceType.KNIGHT;
+                case "ROOK" -> type = ChessPiece.PieceType.ROOK;
+                case "PAWN" -> type = ChessPiece.PieceType.PAWN;
+                default -> throw new IllegalArgumentException("Invalid piece type: " + pieceType);
+            }
 
-            System.out.println("Row: " + row + ", Column: " + col);
+            ChessPiece piece = new ChessPiece(color, type);
+
+            // Add the piece to the chessboard
+            chessBoard.addPiece(position, piece);
         }
 
-        return chessGame;  // Return deserialized ChessGame object
+        return chessBoard;
+    }
+
+    private ChessPosition parsePositionKey(String positionKey) {
+        // Strip braces and split by comma to get row and col values
+        String[] parts = positionKey.replace("{", "").replace("}", "").split(",");
+        int row = Integer.parseInt(parts[0].split(":")[1]);
+        int col = Integer.parseInt(parts[1].split(":")[1]);
+        return new ChessPosition(row, col);
     }
 }

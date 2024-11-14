@@ -13,24 +13,34 @@ public class GamePlayREPL {
     ChessGame game;
     int gameID;
     public static ChessGame.TeamColor color;
+    BoardPrint boardPrint;
 
     public GamePlayREPL(ServerFacade server, GameData gameData, ChessGame.TeamColor color) {
         this.server = server;
         this.game = gameData.game();
         this.color = color;
         this.gameID = gameData.gameID();
+        this.boardPrint = new BoardPrint(game);
     }
 
     public void run(){
         boolean isInGame = true;
+        if(color == ChessGame.TeamColor.WHITE){
+            boardPrint.printBoard(ChessGame.TeamColor.WHITE);
+        }else if(color == ChessGame.TeamColor.BLACK){
+            boardPrint.printBoard(ChessGame.TeamColor.BLACK);
+        }else{
+            boardPrint.printBoard(ChessGame.TeamColor.WHITE);
+            boardPrint.printBoard(ChessGame.TeamColor.BLACK);
+        }
         while(isInGame){
             String[] input = getUserInput();
             switch(input[0]){
                 case "quit":
                     return;
                 default:
-                    out.println("Will implement in phase 6");
-                    return;
+                    out.println("Will implement more commands in phase 6 - for now just quit");
+                    break;
             }
         }
     }

@@ -17,7 +17,7 @@ public class JoinGameHandler implements Route {
         String authToken = request.headers("authorization");
         record JoinGameData(String playerColor, int gameID) {}
         JoinGameData joinData = new Gson().fromJson(request.body(), JoinGameData.class);
-        boolean joinSuccess =  gameService.joinGame(authToken, joinData.playerColor(), joinData.gameID());
+        boolean joinSuccess = gameService.joinGame(authToken, joinData.playerColor(), joinData.gameID());
 
         if (!joinSuccess) {
             response.status(403);

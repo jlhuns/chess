@@ -1,13 +1,20 @@
 package client;
 
-import com.google.gson.Gson;
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 import model.GameData;
 import model.ListGamesResponse;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -63,14 +70,24 @@ public class HTTPHandler {
     }
 
     public List<GameData> listGames() {
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(ChessBoard.class, new ChessBoardDeserializer())  // Register ChessBoard deserializer
+                .registerTypeAdapter(new TypeToken<List<ChessGame>>() {}.getType(), new ListChessGamesDeserializer())  // Register list deserializer
+                .create();
+
         String response = stringRequest("GET", "/game", null);
-        // Check if the response is an error
+
+        // Check if the response contains an error
         if (response.contains("Error")) {
             return null;
         }
-        ListGamesResponse gamesResponse = new Gson().fromJson(response, ListGamesResponse.class);
-        return gamesResponse.games();
+
+        // Deserialize response into ListGamesResponse
+        ListGamesResponse gamesResponse = gson.fromJson(response, ListGamesResponse.class);
+
+        return gamesResponse.games();  // Return list of games
     }
+
     public boolean joinGame(int gameID, String teamcolor){
         Map body;
         if (teamcolor != null) {
@@ -155,4 +172,86 @@ public class HTTPHandler {
         return response.toString();
     }
 
+}
+class ChessBoardDeserializer implements JsonDeserializer<ChessBoard> {
+    @Override
+    public ChessBoard deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+        ChessBoard chessBoard = new ChessBoard();
+
+        // Get the outer 'board' object
+        JsonObject outerBoardObject = json.getAsJsonObject();
+
+        // Check if there is an inner 'board' key and get its value
+        if (!outerBoardObject.has("board")) {
+            throw new JsonParseException("Missing 'board' key in JSON");
+        }
+
+        // Get the inner 'board' object that contains the actual positions and pieces
+        JsonObject boardObject = outerBoardObject.getAsJsonObject("board");
+
+        // Now iterate over the entries in this inner board object
+        for (Map.Entry<String, JsonElement> entry : boardObject.entrySet()) {
+            String positionKey = entry.getKey();
+
+            // Parse the position key into a ChessPosition
+            ChessPosition position = parsePositionKey(positionKey);
+
+            // Deserialize piece details (teamColor and pieceType)
+            JsonObject pieceObject = entry.getValue().getAsJsonObject();
+            String teamColor = pieceObject.get("teamColor").getAsString();
+            String pieceType = pieceObject.get("pieceType").getAsString();
+
+            ChessGame.TeamColor color = teamColor.equals("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+            ChessPiece.PieceType type;
+
+            switch (pieceType) {
+                case "KING" -> type = ChessPiece.PieceType.KING;
+                case "QUEEN" -> type = ChessPiece.PieceType.QUEEN;
+                case "BISHOP" -> type = ChessPiece.PieceType.BISHOP;
+                case "KNIGHT" -> type = ChessPiece.PieceType.KNIGHT;
+                case "ROOK" -> type = ChessPiece.PieceType.ROOK;
+                case "PAWN" -> type = ChessPiece.PieceType.PAWN;
+                default -> throw new IllegalArgumentException("Invalid piece type: " + pieceType);
+            }
+
+            // Create a new ChessPiece and add it to the board
+            ChessPiece piece = new ChessPiece(color, type);
+            chessBoard.addPiece(position, piece);
+        }
+
+        return chessBoard;
+    }
+
+    private ChessPosition parsePositionKey(String positionKey) {
+        // Strip braces and split by comma to get row and col values
+        String cleanedKey = positionKey.replace("{", "").replace("}", "");
+
+        // Check if the cleaned position key contains both row and col components
+        String[] parts = cleanedKey.split(",");
+
+        if (parts.length != 2) {
+            throw new IllegalArgumentException("Invalid position key format: " + positionKey);
+        }
+
+        // Split the row and col components and extract their integer values
+        int row = Integer.parseInt(parts[0].split(":")[1].trim());
+        int col = Integer.parseInt(parts[1].split(":")[1].trim());
+
+        return new ChessPosition(row, col);
+    }
+}
+
+class ListChessGamesDeserializer implements JsonDeserializer<List<ChessGame>> {
+    @Override
+    public List<ChessGame> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+        List<ChessGame> chessGames = new ArrayList<>();
+        JsonArray jsonArray = json.getAsJsonArray();
+
+        for (JsonElement element : jsonArray) {
+            ChessGame chessGame = context.deserialize(element, ChessGame.class);
+            chessGames.add(chessGame);
+        }
+
+        return chessGames;
+    }
 }
