@@ -1,4 +1,3 @@
-import chess.ChessGame;
 import client.ServerFacade;
 import spark.Spark;
 import ui.PreloginREPL;
@@ -13,10 +12,6 @@ public class Main {
         prelogin.run();
         out.println("Exited");
 
-    }
-    public void stop() {
-        Spark.stop();
-        Spark.awaitStop();
     }
 }
 
