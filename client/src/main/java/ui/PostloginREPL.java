@@ -98,12 +98,14 @@ public class PostloginREPL {
         if(!observer){
             color = input[2].toUpperCase();
         }
+
+        ChessGame.TeamColor teamColor = ChessGame.TeamColor.valueOf(color);
         //join game api handler
         if(server.joinGame(joinGame.gameID(), color)){
             out.println("You have joined the game");
             isInGame = true;
 //            server, joinGame, color
-            GamePlayREPL gameplayREPL = new GamePlayREPL();
+            GamePlayREPL gameplayREPL = new GamePlayREPL(server, joinGame, teamColor);
             gameplayREPL.run();
         } else {
             out.println("Game does not exist or color taken");
