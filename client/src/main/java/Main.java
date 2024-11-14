@@ -1,5 +1,4 @@
 import client.ServerFacade;
-import spark.Spark;
 import ui.PreloginREPL;
 
 
@@ -11,7 +10,6 @@ public class Main {
         PreloginREPL prelogin = new PreloginREPL(server);
         prelogin.run();
         out.println("Exited");
-
     }
 }
 
