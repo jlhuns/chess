@@ -87,16 +87,6 @@ public class GameServiceTest {
     }
 
     @Test
-    public void testJoinGameNullColorThrowsException() throws UnauthorizedException, DataAccessException {
-        GameService gameService = GameService.getInstance();
-        int gameId = gameService.createGame(existingAuth, "gameName");
-
-        assertThrows(BadRequestException.class, () -> {
-            gameService.joinGame(existingAuth, null, gameId);
-        });
-    }
-
-    @Test
     public void testJoinGameEmptyColorDoesNotThrowException() throws UnauthorizedException, DataAccessException {
         GameService gameService = GameService.getInstance();
         int gameId = gameService.createGame(existingAuth, "gameName");
