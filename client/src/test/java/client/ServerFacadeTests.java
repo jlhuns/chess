@@ -37,7 +37,7 @@ public class ServerFacadeTests {
     @Test
     void testRegisterSuccess() throws Exception {
         var authData = facade.register("player1", "password", "p1@email.com");
-        assertFalse(authData, "Registration should be successful");
+        assertTrue(authData, "Registration should be successful");
     }
 
     // Test for registration failure due to invalid data

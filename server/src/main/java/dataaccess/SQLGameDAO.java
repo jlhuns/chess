@@ -180,7 +180,9 @@ class ChessBoardDeserializer implements JsonDeserializer<ChessBoard> {
             ChessPosition position = parsePositionKey(positionKey);  // Safely parse the position
 
             JsonObject pieceObject = entry.getValue().getAsJsonObject();
-            if (pieceObject == null) continue;  // Handle missing pieces
+            if (pieceObject == null) {
+                continue;
+            }  // Handle missing pieces
 
             String teamColor = pieceObject.get("teamColor").getAsString();
             String pieceType = pieceObject.get("pieceType").getAsString();
