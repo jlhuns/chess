@@ -21,12 +21,12 @@ public class BoardPrint {
         output.append(SET_TEXT_BOLD);
 
         // Determine board orientation based on team color
-        int startRow = color == ChessGame.TeamColor.WHITE ? 1 : 8;
+        int startRow = color == ChessGame.TeamColor.WHITE ? 0 : 9;
         int rowIncrement = color == ChessGame.TeamColor.WHITE ? 1 : -1;
 
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i <= 9; i++) {
             int row = startRow + i * rowIncrement;
-            for (int col = 1; col <= 8; col++) {
+            for (int col = 0; col <= 9; col++) {
                 ChessPiece chessPiece = game.getBoard().getPiece(new ChessPosition(row, col));
                 String bgColor = (row + col) % 2 == 0 ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_DARK_GREY;
                 output.append(bgColor); // Set the background color
