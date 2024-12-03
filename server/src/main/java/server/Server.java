@@ -9,13 +9,19 @@ import handler.user.LoginHandler;
 import handler.user.LogoutHandler;
 import handler.user.RegisterHandler;
 import spark.*;
+import org.eclipse.jetty.websocket.api.Session;
+
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Server {
+
+    static ConcurrentHashMap<Session, Integer> gameSessions = new ConcurrentHashMap<>();
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+        Spark.webSocket("/connect", WebSocketHandler.class);
 
         try {
             SQLUserDAO.getInstance().configureDatabase();

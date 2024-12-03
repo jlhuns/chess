@@ -8,6 +8,8 @@ public class ServerFacade {
     private final String serverDomain;
     HTTPHandler handler;
     String authToken;
+    WebSocketCommunicator ws;
+
 
 
     public ServerFacade() throws Exception {
@@ -44,6 +46,16 @@ public class ServerFacade {
 
     public String getAuthToken() {
         return authToken;
+    }
+
+    //Web Socket Functions:
+    public void connectWS() {
+        try {
+            ws = new WebSocketCommunicator(serverDomain);
+        }
+        catch (Exception e) {
+            System.out.println("Failed to make connection with server");
+        }
     }
 }
 
