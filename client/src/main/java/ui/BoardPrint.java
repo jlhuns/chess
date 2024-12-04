@@ -20,6 +20,7 @@ public class BoardPrint {
     public void updateGame(ChessGame game) {
         this.game = game;
     }
+
     public void printBoard(ChessGame.TeamColor color) {
         StringBuilder output = new StringBuilder();
         output.append(SET_TEXT_BOLD);

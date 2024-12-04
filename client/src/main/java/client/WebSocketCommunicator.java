@@ -1,16 +1,21 @@
 package client;
 
+import chess.ChessBoard;
 import chess.ChessGame;
-import com.google.gson.Gson;
+
+import com.google.gson.*;
 import ui.GamePlayREPL;
 import websocket.messages.LoadGame;
 import websocket.messages.Notification;
+import websocket.messages.Error;
 
 import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+
+import static java.lang.System.out;
 import static ui.EscapeSequences.ERASE_LINE;
 
 public class WebSocketCommunicator extends Endpoint {
@@ -38,10 +43,11 @@ public class WebSocketCommunicator extends Endpoint {
 
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
-        System.out.println("Connected to server");
+        out.println("Connected to server");
     }
 
     private void handleMessage(String message) {
+        out.println(message);
         if (message.contains("\"serverMessageType\":\"NOTIFICATION\"")) {
             Notification notif = new Gson().fromJson(message, Notification.class);
             printNotification(notif.getMessage());
@@ -51,21 +57,24 @@ public class WebSocketCommunicator extends Endpoint {
             printNotification(error.getMessage());
         }
         else if (message.contains("\"serverMessageType\":\"LOAD_GAME\"")) {
-            LoadGame loadGame = new Gson().fromJson(message, LoadGame.class);
+            Gson gson = new GsonBuilder()
+                    .registerTypeAdapter(ChessBoard.class, new ChessBoardDeserializer())
+                    .create();
+            LoadGame loadGame = gson.fromJson(message, LoadGame.class);
             printLoadedGame(loadGame.getGame());
         }
     }
 
     private void printNotification(String message) {
-        System.out.print(ERASE_LINE + '\r');
-        System.out.printf("\n%s\n[IN-GAME] >>> ", message);
+        out.print(ERASE_LINE + '\r');
+        out.printf("\n%s\n[IN-GAME] >>> ", message);
     }
 
     private void printLoadedGame(ChessGame game) {
-        System.out.print(ERASE_LINE + "\r\n");
-        gamePlayREPL.boardPrint.updateGame(game);
-        gamePlayREPL.boardPrint.printBoard(gamePlayREPL.getColor());
-        System.out.print("[IN-GAME] >>> ");
+        out.print(ERASE_LINE + "\r\n");
+        GamePlayREPL.boardPrint.updateGame(game);
+        GamePlayREPL.boardPrint.printBoard(GamePlayREPL.color);
+        out.print("[IN-GAME] >>> ");
     }
 
     public void sendMessage(String message) {

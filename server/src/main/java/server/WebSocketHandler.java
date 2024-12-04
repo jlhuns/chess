@@ -21,6 +21,7 @@ import websocket.commands.Resign;
 import websocket.messages.LoadGame;
 import websocket.messages.Notification;
 import websocket.messages.ServerMessage;
+import websocket.messages.Error;
 
 import java.io.IOException;
 

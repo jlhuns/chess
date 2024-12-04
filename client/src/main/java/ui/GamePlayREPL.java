@@ -16,7 +16,7 @@ public class GamePlayREPL {
     ChessGame game;
     int gameID;
     public static ChessGame.TeamColor color;
-    public BoardPrint boardPrint;
+    public static BoardPrint boardPrint;
     PostloginREPL postloginREPL;
 
     public GamePlayREPL(ServerFacade server, GameData gameData, ChessGame.TeamColor color) {
@@ -72,6 +72,7 @@ public class GamePlayREPL {
                     }
                     break;
                 case "highlight":
+
                     break;
                 default:
                     out.println("Will implement more commands in phase 6 - for now just quit or leave");
