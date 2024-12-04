@@ -14,6 +14,8 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import websocket.commands.Connect;
+import websocket.commands.Leave;
+import websocket.commands.MakeMove;
 import websocket.commands.Resign;
 import websocket.messages.Notification;
 import websocket.messages.ServerMessage;
@@ -48,6 +50,33 @@ public class WebSocketHandler {
             Connect cmd = new Gson().fromJson(message, Connect.class);
             Server.gameSessions.replace(session, cmd.getGameID());
             handleConnect(session, cmd);
+        }
+        if(message.contains("\"commandType\":\"LEAVE\"")){
+            Leave cmd = new Gson().fromJson(message, Leave.class);
+            handleLeave(session, cmd);
+        }
+        if(message.contains("\"commandType\":\"MAKE_MOVE\"")){
+            MakeMove cmd = new Gson().fromJson(message, MakeMove.class);
+            handleMakeMove(session, cmd)
+        }
+    }
+
+    private void handleMakeMove(Session session, MakeMove cmd) {
+
+    }
+
+    private void handleLeave(Session session, Leave cmd) throws IOException {
+        try {
+            AuthData auth = Server.userService.getAuthToken(cmd.getAuthToken());
+
+            Notification notif = new Notification("%s has left the game".formatted(auth.username()));
+            broadcastMessage(session, notif);
+
+            session.close();
+        } catch (UnauthorizedException e) {
+            sendError(session, new Error("Error: Not authorized"));
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
         }
     }
     private void handleConnect(Session session, Connect cmd) throws UnauthorizedException, DataAccessException, IOException {

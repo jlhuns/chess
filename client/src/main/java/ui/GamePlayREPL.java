@@ -1,6 +1,9 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import client.ServerFacade;
 import model.GameData;
 
@@ -52,11 +55,13 @@ public class GamePlayREPL {
                     isInGame = false;
                     server.leave(gameID);
                     break;
-                case "Redraw":
+                case "redraw":
+                    boardPrint.printBoard(color);
                     break;
-                case "Make Move":
+                case "move":
+                    handleMakeMove(input);
                     break;
-                case "Resign":
+                case "resign":
                     out.println("Are you sure you want to forfeit? (yes/no)");
                     String[] confirmation = getUserInput();
                     if (confirmation.length == 1 && confirmation[0].equalsIgnoreCase("yes")) {
@@ -66,7 +71,7 @@ public class GamePlayREPL {
                         out.println("Resignation cancelled");
                     }
                     break;
-                case "Highlight":
+                case "highlight":
                     break;
                 default:
                     out.println("Will implement more commands in phase 6 - for now just quit or leave");
@@ -76,6 +81,37 @@ public class GamePlayREPL {
         if(!isInGame){
             postloginREPL.run();
         }
+    }
+    private void handleMakeMove(String[] input) {
+        if (input.length >= 3 && input[1].matches("[a-h][1-8]") && input[2].matches("[a-h][1-8]")) {
+            ChessPosition from = new ChessPosition(input[1].charAt(1) - '0', input[1].charAt(0) - ('a'-1));
+            ChessPosition to = new ChessPosition(input[2].charAt(1) - '0',input[2].charAt(0) - ('a'-1));
+
+            ChessPiece.PieceType promotion = null;
+            if (input.length == 4) {
+                promotion = getPieceType(input[3]);
+                if (promotion == null) { // If it was improperly typed by the user
+                    out.println("Please provide proper promotion piece name (ex: 'knight')");
+                    printMakeMove();
+                }
+            }
+
+            server.makeMove(gameID, new ChessMove(from, to, promotion));
+        }
+        else {
+            out.println("Please provide a to and from coordinate (ex: 'c3 d5')");
+            printMakeMove();
+        }
+    }
+    public ChessPiece.PieceType getPieceType(String name) {
+        return switch (name.toUpperCase()) {
+            case "QUEEN" -> ChessPiece.PieceType.QUEEN;
+            case "BISHOP" -> ChessPiece.PieceType.BISHOP;
+            case "KNIGHT" -> ChessPiece.PieceType.KNIGHT;
+            case "ROOK" -> ChessPiece.PieceType.ROOK;
+            case "PAWN" -> ChessPiece.PieceType.PAWN;
+            default -> null;
+        };
     }
 
     private void printHelpMenu(){
