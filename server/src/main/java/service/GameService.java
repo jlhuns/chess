@@ -69,7 +69,7 @@ public class GameService {
             ChessBoard board = new ChessBoard();
             board.resetBoard();
             game.setBoard(board);
-            GameData gameData = new GameData(newGameId, null, null,gameName, game);
+            GameData gameData = new GameData(newGameId, null, null, gameName, game);
 
 
             return gameDAO.insertGame(gameData);  // Return the generated game ID
@@ -83,18 +83,18 @@ public class GameService {
         GameData gameData = gameDAO.getGame(gameID);
 
 
-        if(gameData == null) {
+        if (gameData == null) {
             throw new BadRequestException("Error: bad request");
         }
         if (authData == null) {
             throw new UnauthorizedException(); // Return 401 error
         }
 
-        if(playerColor == null || playerColor.isEmpty()) {
+        if (playerColor == null || playerColor.isEmpty()) {
             throw new BadRequestException("Error: bad request");
         }
 
-        if(playerColor == "obs"){
+        if (playerColor == "obs") {
             return true;
         }
 
@@ -142,6 +142,24 @@ public class GameService {
             return "BLACK";
         } else {
             return ""; // No spots available
+        }
+    }
+
+    public GameData getGameData(int gameID) throws DataAccessException {
+        return gameDAO.getGame(gameID);
+    }
+
+    public void updateGame(String authToken, GameData gameData) throws UnauthorizedException, BadRequestException {
+        try {
+            authDAO.getAuthData(authToken);
+        } catch (DataAccessException e) {
+            throw new UnauthorizedException();
+        }
+
+        try {
+            gameDAO.updateGame(gameData);
+        } catch (DataAccessException e) {
+            throw new BadRequestException(e.getMessage());
         }
     }
 }

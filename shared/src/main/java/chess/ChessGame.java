@@ -13,11 +13,13 @@ public class ChessGame {
     private TeamColor teamColor;
     private boolean cacheValid;
     private Set<ChessPosition> cachedThreatenedPositions;
+    private boolean gameOver;
     public ChessGame() {
         this.teamColor = TeamColor.WHITE;
         this.board = new ChessBoard();
         this.board.resetBoard();
         this.cacheValid = false;
+        this.gameOver = false;
     }
 
     private void cacheThreatenedPositions(TeamColor teamColor) {
@@ -238,5 +240,12 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return this.board;
+    }
+
+    public Boolean getGameOver(){
+        return gameOver;
+    }
+    public void setGameOver(boolean status) {
+        this.gameOver = status;
     }
 }

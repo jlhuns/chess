@@ -107,11 +107,11 @@ public class PostloginREPL {
             if(!observer){
                 ChessGame.TeamColor teamColor = ChessGame.TeamColor.valueOf(color);
                 gameplayREPL = new GamePlayREPL(server, joinGame, teamColor);
-                server.connectWS();
             }else{
                 gameplayREPL = new GamePlayREPL(server, joinGame);
-                server.connectWS();
             }
+            server.connectWS();
+            server.connect(joinGame.gameID());
             gameplayREPL.run();
         } else {
             out.println("Game does not exist or color taken");

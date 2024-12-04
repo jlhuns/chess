@@ -8,6 +8,8 @@ import handler.game.ListGamesHandler;
 import handler.user.LoginHandler;
 import handler.user.LogoutHandler;
 import handler.user.RegisterHandler;
+import service.GameService;
+import service.UserService;
 import spark.*;
 import org.eclipse.jetty.websocket.api.Session;
 
@@ -16,6 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Server {
 
     static ConcurrentHashMap<Session, Integer> gameSessions = new ConcurrentHashMap<>();
+    public static UserService userService = UserService.getInstance();
+    public static GameService gameService = GameService.getInstance();
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);

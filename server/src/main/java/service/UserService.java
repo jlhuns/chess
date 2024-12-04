@@ -74,4 +74,8 @@ public class UserService {
         }
         authDAO.deleteAuth(authData);
     }
+
+    public AuthData getAuthToken(String authToken) throws DataAccessException, UnauthorizedException {
+        return authDAO.getAuthData(authToken);
+    }
 }
