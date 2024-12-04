@@ -66,13 +66,21 @@ public class GamePlayREPL {
                     String[] confirmation = getUserInput();
                     if (confirmation.length == 1 && confirmation[0].equalsIgnoreCase("yes")) {
                         server.resign(gameID);
+                        isInGame = false;
                     }
                     else {
                         out.println("Resignation cancelled");
                     }
                     break;
                 case "highlight":
-
+                    if (input.length == 2 && input[1].matches("[a-h][1-8]")) {
+                        ChessPosition position = new ChessPosition(input[1].charAt(1) - '0', input[1].charAt(0) - ('a'-1));
+                        boardPrint.printBoard(color, position);
+                    }
+                    else {
+                        out.println("Please provide a coordinate (ex: 'c3')");
+                        printHighlight();
+                    }
                     break;
                 default:
                     out.println("Will implement more commands in phase 6 - for now just quit or leave");

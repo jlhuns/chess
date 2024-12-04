@@ -1,4 +1,4 @@
-package server;
+package passoff.server;
 
 import chess.ChessBoard;
 import chess.ChessGame;

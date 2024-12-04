@@ -47,7 +47,7 @@ public class WebSocketCommunicator extends Endpoint {
     }
 
     private void handleMessage(String message) {
-        out.println(message);
+//        out.println(message);
         if (message.contains("\"serverMessageType\":\"NOTIFICATION\"")) {
             Notification notif = new Gson().fromJson(message, Notification.class);
             printNotification(notif.getMessage());
