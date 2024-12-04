@@ -85,8 +85,8 @@ public class GamePlayREPL {
     }
     private void handleMakeMove(String[] input) {
         if (input.length >= 3 && input[1].matches("[a-h][1-8]") && input[2].matches("[a-h][1-8]")) {
-            ChessPosition from = new ChessPosition(9 - (input[1].charAt(1) - '0'), input[1].charAt(0) - ('a' - 1));
-            ChessPosition to = new ChessPosition(9 - (input[2].charAt(1) - '0'), input[2].charAt(0) - ('a' - 1));
+            ChessPosition from = new ChessPosition((input[1].charAt(1) - '0'), input[1].charAt(0) - ('a' - 1));
+            ChessPosition to = new ChessPosition((input[2].charAt(1) - '0'), input[2].charAt(0) - ('a' - 1));
 
 
             ChessPiece.PieceType promotion = null;
