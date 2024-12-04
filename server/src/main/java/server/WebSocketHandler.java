@@ -2,6 +2,7 @@ package server;
 
 
 import chess.ChessGame;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.BadRequestException;
 import dataaccess.DataAccessException;
@@ -17,6 +18,7 @@ import websocket.commands.Connect;
 import websocket.commands.Leave;
 import websocket.commands.MakeMove;
 import websocket.commands.Resign;
+import websocket.messages.LoadGame;
 import websocket.messages.Notification;
 import websocket.messages.ServerMessage;
 
@@ -57,12 +59,66 @@ public class WebSocketHandler {
         }
         if(message.contains("\"commandType\":\"MAKE_MOVE\"")){
             MakeMove cmd = new Gson().fromJson(message, MakeMove.class);
-            handleMakeMove(session, cmd)
+            handleMakeMove(session, cmd);
         }
     }
 
-    private void handleMakeMove(Session session, MakeMove cmd) {
+    private void handleMakeMove(Session session, MakeMove cmd) throws IOException {
+        try {
+            AuthData auth = Server.userService.getAuthToken(cmd.getAuthToken());
+            GameData game = Server.gameService.getGameData(cmd.getGameID());
+            ChessGame.TeamColor userColor = getTeamColor(auth.username(), game);
+            if (userColor == null) {
+                sendError(session, new Error("Error: You are observing this game"));
+                return;
+            }
 
+            if (game.game().getGameOver()) {
+                sendError(session, new Error("Error: can not make a move, game is over"));
+                return;
+            }
+
+            if (game.game().getTeamTurn().equals(userColor)) {
+                game.game().makeMove(cmd.getMove());
+
+                Notification notif;
+                ChessGame.TeamColor opponentColor = userColor == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
+
+                if (game.game().isInCheckmate(opponentColor)) {
+                    notif = new Notification("Checkmate! %s wins!".formatted(auth.username()));
+                    game.game().setGameOver(true);
+                }
+                else if (game.game().isInStalemate(opponentColor)) {
+                    notif = new Notification("Stalemate caused by %s's move! It's a tie!".formatted(auth.username()));
+                    game.game().setGameOver(true);
+                }
+                else if (game.game().isInCheck(opponentColor)) {
+                    notif = new Notification("A move has been made by %s, %s is now in check!".formatted(auth.username(), opponentColor.toString()));
+                }
+                else {
+                    notif = new Notification("A move has been made by %s".formatted(auth.username()));
+                }
+                broadcastMessage(session, notif);
+
+                Server.gameService.updateGame(auth.authToken(), game);
+
+                LoadGame load = new LoadGame(game.game());
+                broadcastMessage(session, load, true);
+            }
+            else {
+                sendError(session, new Error("Error: it is not your turn"));
+            }
+        }
+        catch (UnauthorizedException e) {
+            sendError(session, new Error("Error: Not authorized"));
+        } catch (BadRequestException e) {
+            sendError(session, new Error("Error: invalid game"));
+        } catch (InvalidMoveException e) {
+            System.out.println("****** error: " + e.getMessage() + "  " + cmd.getMove().toString());
+            sendError(session, new Error("Error: invalid move (you might need to specify a promotion piece)"));
+        } catch (DataAccessException | IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void handleLeave(Session session, Leave cmd) throws IOException {
