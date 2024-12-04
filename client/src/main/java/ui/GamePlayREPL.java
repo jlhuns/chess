@@ -13,7 +13,7 @@ public class GamePlayREPL {
     ChessGame game;
     int gameID;
     public static ChessGame.TeamColor color;
-    BoardPrint boardPrint;
+    public BoardPrint boardPrint;
     PostloginREPL postloginREPL;
 
     public GamePlayREPL(ServerFacade server, GameData gameData, ChessGame.TeamColor color) {
@@ -48,6 +48,11 @@ public class GamePlayREPL {
                 case "leave":
                     isInGame = false;
                     break;
+                case "Make Move":
+
+                case "Resign":
+
+
                 default:
                     out.println("Will implement more commands in phase 6 - for now just quit or leave");
                     break;
@@ -62,5 +67,11 @@ public class GamePlayREPL {
         out.print("\n[In-Game] >>> ");
         Scanner scanner = new Scanner(System.in);
         return scanner.nextLine().split(" ");
+    }
+    public BoardPrint getBoardPrint() {
+        return boardPrint;
+    }
+    public ChessGame.TeamColor getColor() {
+        return color;
     }
 }
