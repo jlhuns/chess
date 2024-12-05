@@ -17,7 +17,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Server {
 
-    static ConcurrentHashMap<Session, Integer> gameSessions = new ConcurrentHashMap<>();
     public static UserService userService = UserService.getInstance();
     public static GameService gameService = GameService.getInstance();
 
@@ -25,7 +24,7 @@ public class Server {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
-        Spark.webSocket("/connect", WebSocketHandler.class);
+        Spark.webSocket("/ws", WebSocketHandler.class);
 
         try {
             SQLUserDAO.getInstance().configureDatabase();

@@ -24,21 +24,25 @@ import websocket.messages.ServerMessage;
 import websocket.messages.Error;
 
 import java.io.IOException;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static java.lang.System.out;
 
 @WebSocket
 public class WebSocketHandler {
+    static ConcurrentHashMap<Session, Integer> gameSessions = new ConcurrentHashMap<>();
 
 
     @OnWebSocketConnect
     public void onConnect(Session session) throws Exception {
-        Server.gameSessions.put(session, 0);
+
+        gameSessions.put(session, 0);
     }
 
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) {
-        Server.gameSessions.remove(session);
+        gameSessions.remove(session);
     }
 
     @OnWebSocketMessage
@@ -51,7 +55,7 @@ public class WebSocketHandler {
         }
         if(message.contains("\"commandType\":\"CONNECT\"")){
             Connect cmd = new Gson().fromJson(message, Connect.class);
-            Server.gameSessions.replace(session, cmd.getGameID());
+            gameSessions.replace(session, cmd.getGameID());
             handleConnect(session, cmd);
         }
         if(message.contains("\"commandType\":\"LEAVE\"")){
@@ -125,31 +129,59 @@ public class WebSocketHandler {
     private void handleLeave(Session session, Leave cmd) throws IOException {
         try {
             AuthData auth = Server.userService.getAuthToken(cmd.getAuthToken());
+            GameData gameData = Server.gameService.getGameData(cmd.getGameID());
 
             Notification notif = new Notification("%s has left the game".formatted(auth.username()));
             broadcastMessage(session, notif);
 
+            ChessGame.TeamColor color = getTeamColor(auth.username(), gameData);
+
+            GameData updatedGameData = switch (color) {
+                case WHITE -> new GameData(gameData.gameID(), null, gameData.blackUsername(), gameData.gameName(), gameData.game());
+                case BLACK -> new GameData(gameData.gameID(), gameData.whiteUsername(), null, gameData.gameName(), gameData.game());
+                default -> gameData;
+            };
+
             session.close();
+            Server.gameService.updateGame(auth.authToken(), updatedGameData);
         } catch (UnauthorizedException e) {
             sendError(session, new Error("Error: Not authorized"));
-        } catch (DataAccessException e) {
+        } catch (DataAccessException | BadRequestException e) {
             throw new RuntimeException(e);
         }
     }
     private void handleConnect(Session session, Connect cmd) throws UnauthorizedException, DataAccessException, IOException {
-        AuthData authData = Server.userService.getAuthToken(cmd.getAuthToken());
-        GameData gameData = Server.gameService.getGameData(cmd.getGameID());
-        String username = authData.username();
-        ChessGame.TeamColor color = getTeamColor(username, gameData);
+        ChessGame.TeamColor userColor = null;
+        try {
+            AuthData auth = Server.userService.getAuthToken(cmd.getAuthToken());
+            GameData game = Server.gameService.getGameData(cmd.getGameID());
+            if(game == null){
+                sendError(session, new Error("Error: Not a valid game"));
+            }
+            if(auth == null){
+                sendError(session, new Error("Error: Not authorized"));
+            }
 
-        if(color == null){
-            Notification notif = new Notification("%s has joined the game as an observer".formatted(username));
+            userColor = getTeamColor(auth.username(), game);
+
+
+            Notification notif;
+            if(userColor != null){
+                notif = new Notification("%s has joined the game as %s".formatted(auth.username(), userColor.toString()));
+            }else{
+                notif = new Notification("%s has joined the game as an observer".formatted(auth.username()));
+
+            }
             broadcastMessage(session, notif);
-        }else{
-            Notification notif = new Notification("%s has joined the game as %s".formatted(username, color.toString()));
-            broadcastMessage(session, notif);
+            try{
+                LoadGame load = new LoadGame(game.game());
+                sendMessage(session, load);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } catch (UnauthorizedException e) {
+            sendError(session, new Error("Error: Not authorized"));
         }
-
     }
 
     private void handleResign(Session session, Resign cmd) throws UnauthorizedException, DataAccessException, IOException, BadRequestException {
@@ -163,7 +195,7 @@ public class WebSocketHandler {
         String opponentUsername = userColor == ChessGame.TeamColor.WHITE ? gameData.blackUsername() : gameData.whiteUsername();
 
         if (userColor == null) {
-            sendError(session, new Error("Error: You are observing this game"));
+            sendError(session, new Error ("Error: You are observing this game"));
             return;
         }
 
@@ -187,9 +219,9 @@ public class WebSocketHandler {
     // Send the notification to all clients on the current game
     public void broadcastMessage(Session currSession, ServerMessage message, boolean toSelf) throws IOException {
         System.out.printf("Broadcasting (toSelf: %s): %s%n", toSelf, new Gson().toJson(message));
-        for (Session session : Server.gameSessions.keySet()) {
-            boolean inAGame = Server.gameSessions.get(session) != 0;
-            boolean sameGame = Server.gameSessions.get(session).equals(Server.gameSessions.get(currSession));
+        for (Session session : gameSessions.keySet()) {
+            boolean inAGame = gameSessions.get(session) != 0;
+            boolean sameGame = gameSessions.get(session).equals(gameSessions.get(currSession));
             boolean isSelf = session == currSession;
             if ((toSelf || !isSelf) && inAGame && sameGame) {
                 sendMessage(session, message);
@@ -207,6 +239,9 @@ public class WebSocketHandler {
     }
 
     private ChessGame.TeamColor getTeamColor(String username, GameData game) {
+        if(game == null){
+            return null;
+        }
         if (username.equals(game.whiteUsername())) {
             return ChessGame.TeamColor.WHITE;
         }

@@ -34,15 +34,6 @@ public class GamePlayREPL {
 
     public void run(){
         boolean isInGame = true;
-        if(color == ChessGame.TeamColor.WHITE){
-            boardPrint.printBoard(ChessGame.TeamColor.WHITE);
-        }else if(color == ChessGame.TeamColor.BLACK){
-            boardPrint.printBoard(ChessGame.TeamColor.BLACK);
-        }else{
-            boardPrint.printBoard(ChessGame.TeamColor.WHITE);
-            out.println("\n");
-            boardPrint.printBoard(ChessGame.TeamColor.BLACK);
-        }
         while(isInGame){
             String[] input = getUserInput();
             switch(input[0]){

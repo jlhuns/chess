@@ -46,10 +46,11 @@ public class SQLAuthDAO implements AuthDAO {
                 if(rs.next()){
                     return new AuthData(rs.getString("authToken"), rs.getString("username"));
                 } else{
-                    return null;
+                    throw new UnauthorizedException();
+
                 }
             }
-        }catch (SQLException e){
+        }catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
